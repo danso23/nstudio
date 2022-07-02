@@ -8,7 +8,7 @@
             $file_tmp   = $_FILES['fileToUpload']['tmp_name'];
             $file_type  = $_FILES['fileToUpload']['type'];
 
-            $formatos_permitidos =  array('jpeg','jpg','png');
+            $formatos_permitidos =  array('jpeg','jpg','png','heic','heif');
             $extension           = pathinfo($file_name, PATHINFO_EXTENSION);
             
             if(!in_array($extension, $formatos_permitidos) ) {
