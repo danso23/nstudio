@@ -1,0 +1,17 @@
+AOS.init({
+	once: true,
+	initClassName: 'aos-init',
+	useClassNames: true,
+	// initClassName: false,
+	animatedClassName: 'aos-animate',
+	duration: 2000,
+	delay: 200,
+	offset: 200,
+	startEvent: 'DOMContentLoaded',
+	disableMutationObserver: false,
+	debounceDelay: 50,
+	throttleDelay: 99,
+	easing: 'ease',
+	mirror: false,
+	anchorPlacement: 'top-bottom',
+});
