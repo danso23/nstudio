@@ -2,12 +2,23 @@ var objDataTbl;
 var objTarget;
 var elemtetmp;
 
+const Toast = Swal.mixin({
+								  toast: true,
+								  position: 'center',
+								  showConfirmButton: false,
+								  timer: 3000,
+								  timerProgressBar: true,
+								  didOpen: (toast) => {
+								    toast.addEventListener('mouseenter', Swal.stopTimer)
+								    toast.addEventListener('mouseleave', Swal.resumeTimer)
+								  }
+								})
+
 
 $(document).ready(function(){	
 
 
-	// Activate tooltip
-	$('[data-toggle="tooltip"]').tooltip();
+	// Activate tooltip		
 	
 	
 	/**************************************** Section view *******************************************************/
@@ -23,7 +34,10 @@ $(document).ready(function(){
 		});				
 		document.querySelector('#'+form[0].id+' #hdditem').value = 0;		
 
+		objDataTbl.destroy();
+		dataCurso() ;
 		objDataTbl.columns.adjust().draw();
+
 	});
 	
 
@@ -45,7 +59,24 @@ $(document).ready(function(){
           
           if(!data.lError){          
           	$('#hdditem').val(data.cError);
-            myDropzone.processQueue();            
+          	$('#bstate').val(true);    
+
+          				       
+				    if(myDropzone.getRejectedFiles().length > 0) {
+				        Toast.fire({
+								  icon: 'error',
+								  title: 'Imagenes no validas'
+								})
+				    }
+						else if (myDropzone.files.length > 0){ 
+							myDropzone.processQueue();
+						}
+						else{
+							Toast.fire({
+						  	icon: 'success',
+						  	title: 'Edición realizado con exito'
+							})	
+						}
           }
           else{
             
@@ -61,15 +92,38 @@ $(document).ready(function(){
 	    }
 		});
 		
-		let getElement = $(this).closest('div').find('img').attr('src');
-		console.log(getElement);
 
-		$.post({url:url_global+"/admin/changecover",data: {hhuiid: $('#hdditem').val(),path:getElement},cache: false,})
+		//$(this).closest('div').find('img').attr('src');	 product-new-label	
+		let getElement = $(this).data('cover');
+
+		$.post({url:url_global+"/admin/changecover",data: {uuidprod: $('#hdditem').val(),setcover:getElement},cache: false,})
     .done(function(data,status) {          
       
-      if(!data.lError){          
-      	// $('#hdditem').val(data.cError);
-        myDropzone.processQueue();            
+      if(!data.lError){  
+
+      	$('.product-image3').find('span').each(function(){ 
+      			$(this).remove();
+      	});
+
+      	$('.carousel-inner').find('#prod_'+getElement).each(function(){
+      		console.log("Si busque la nueva portada");
+      		$(this).closest('.product-grid3').find('.product-image3').append('<span class="product-new-label">Portada</span>');
+      		// $(this).closest('div').next().closest('.product-image3').append('<span class="product-new-label">Portada</span>');//.closest('.product-image3').html());
+
+      	});//.length > 0){           	     	
+    //   	if($('.carousel-inner').find('#prod_'+file.upload.uuid).length > 0){
+				// 		document.getElementById("prod_"+file.upload.uuid).remove();
+				// }
+
+      	// $('.product-image3').append('<span class="product-new-label">Portada</span>');
+      	// find('div.product-image3',function(){ 
+      	// 		$(this).append('<span class="product-new-label">Portada</span>');
+      	// });
+
+        Toast.fire({
+						  	icon: 'success',
+						  	title: data.cMensaje
+							})	        
       }
       else{
         
@@ -218,6 +272,7 @@ function dataCurso() {
 
 
 function crearDataTable(table, target){
+
 		objDataTbl 	= $("#"+table).DataTable({
 						responsive: true,
 						autoWidth: false,
@@ -296,9 +351,32 @@ function storeCurso(position, tipoAccion){
 		document.querySelector('#'+form[0].id +' #categoria_cloths').value	= datos[13];
 		document.querySelector('#'+form[0].id+' #hdditem').value = datos[12];
 		// document.querySelector('#'+form[0].id +' #nombre').value		= datos[1];
-		
 				
 		
+
+		$.post({url:url_global+"/admin/itemsimg",data:{refereimg: datos[12]} ,cache: false,})
+    .done(function(data,status) {          
+      
+      if(!data.lError){          
+      	
+        $('.carousel-inner').empty();        
+        $('.carousel-indicators').empty();
+        data.data.forEach((el, i) => {
+
+        	let avtiv = (i ==0) ? 'active': '';
+        	let cover = (el.coverimg) ? true : false;
+        	
+        	$('.carousel-inner').append(getItem(avtiv,'../public/'+el.url_path,el.idimgrel,cover));
+        	$('.carousel-indicators').append(getindicators(i,cover));
+        	$('[data-toggle="tooltip"]').tooltip();
+        });        
+      }
+      else{
+        
+      }
+    });
+
+
 		$('.carousel-inner').empty();
 		var Element = "";
 
@@ -327,10 +405,10 @@ function storeCurso(position, tipoAccion){
 	}
 }
 
-function getItem(active,url,uuid = ''){
+function getItem(active,url,uuid = '',cover){
 
 	let Element = '';
-	let uuidiv 		= (uuid == '') ? '' : ' id="'+uuid+'" ';
+	let uuidiv 		= (uuid == '') ? '' : ' id="prod_'+uuid+'" ';
 	Element  	+= '<div class="carousel-item '+active+'" '+uuidiv+'>';
 				Element 	+= '<!-- <img class="d-block w-100" src="https://i.hizliresim.com/LDPMg0.jpg" alt="First slide"> -->';
 				Element     += '<div class="product-grid3">';
@@ -340,16 +418,22 @@ function getItem(active,url,uuid = ''){
 				// Element     +=  '<!-- <img class="pic-2" src="https://www.w3schools.com/bootstrap4/img_avatar3.png"> -->';
 				Element     +=  '</div>';
 				Element     +=  '<ul class="social">';
-				Element     +=      '<li><a class="setPortada"><i class="fa fa-cog"></i></a></li>';
-				// Element     +=      '<li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>';
+				Element     +=  (!cover) ? '<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+uuid+'"><i class="fa fa-cog"></i></a></li>' : '';
+				Element     +=      '<li><a data-toggle="tooltip" title="Elimina Imagen" class="deleteIm" data-del="'+uuid+'"><i class="fa fa-trash" data></i></a></li>';
 				Element     +=  '</ul>';
-				Element     +=  (active != '') ? '<span class="product-new-label">Portada</span>' : '';
+				Element     +=  (cover) ? '<span class="product-new-label">Portada</span>' : '';
 				Element     +=  '</div>';
 				Element     +=  '</div>';
 				Element     +=  '</div>';
 	
 	return Element;				
 
+}
+
+function getindicators(number, cover){
+
+		let active = (cover) ?'active' : '';
+		return '<li data-target="#MiddleCarousel" data-slide-to="'+number+'" class="'+active+'"></li>';	
 }
 
 function guardarProducto(){
@@ -401,6 +485,7 @@ $(function() {
 	    addRemoveLinks: true,
 	    // paramName: "Archivo",
 	    parallelUploads:3,
+	    maxFiles: 3,
 	    uploadMultiple:true,
 	    autoProcessQueue: false,
 	    maxFilesize: 4, // MB
@@ -412,34 +497,59 @@ $(function() {
 	    accept:function(file, done) {
 	        done();	        
 	    },
-	    removedfile: function (file) {
+	    removedfile: function (file) {    		    		
     		
-    		file.previewElement.remove();    		
-    		
+    		file.previewElement.remove();
+
     		if($('.carousel-inner').find('#'+file.upload.uuid+'.active').length > 0){						
 						$('#'+file.upload.uuid+'.active').removeClass('active');
 						$('#'+file.upload.uuid).prev().addClass('active');	
-						document.getElementById(file.upload.uuid).remove();						
+						document.getElementById("prod_"+file.upload.uuid).remove();						
 				}    		
 				else{
-					document.getElementById(file.upload.uuid).remove();
+					if($('.carousel-inner').find('#prod_'+file.upload.uuid).length > 0){
+						document.getElementById("prod_"+file.upload.uuid).remove();
+					}
 				}
-			},
+
+			},	
+			thumbnail: function(file,thumb){								    		
+
+				$('#fileUploadHandler').prepend($(file.previewElement));
+
+				for (const element of this.files) {    				
+    				
+    				if($('.carousel-inner').find('#prod_'+element.upload.uuid).length == 0){
+
+    					if(file.upload.uuid == element.upload.uuid){
+    						$('.carousel-inner').append(getItem('',file.dataURL,file.upload.uuid));	        
+	      				NumberProd++;
+    					}
+    				}    				
+				}
+				
+			},	
 	    init: function() {        
 
 	    		// if(this.files[1]!=null){
 	        //     this.removeFile(this.files[0]);
 	        // }
+
+	        
+			    this.on('maxfilesexceeded', function(file) {
+			    	if($('.carousel-inner').find('#'+file.upload.uuid).length > 0){
+							document.getElementById(file.upload.uuid).remove();
+						}
+			      this.removeFile(file);
+			    });
 	    		
-	        this.on("thumbnail", function(file,fileurl) {                            	            
-	              $('.carousel-inner').append(getItem('',file.dataURL,file.upload.uuid));	        
-	        			NumberProd++;
-	        });   
+			    // this.files.forEach(function(element){	          
+	      //     this.thumbnail(element);
+	      //   });	        
 
 	        this.on("sending", function(file, xhr, formdata){
             formdata.append("ruta", $('#hdditem').val());                      
           });
-
 	    },
 	    // sending: function(file,xhr,formdata){
 	    //    console.log(file);
@@ -447,17 +557,35 @@ $(function() {
 	    // },
 	    success: function (file, response) {
 	        var imgName = response;
-	        console.log(response);
-	        //console.log("Successfully uploaded :" + imgName);
 	        file.previewElement.classList.add("dz-success");
-	        // alertify.set('notifier','position', 'top-center');        
-	        // alertify.success(response.urlImg); 
-	        tempThis = this;
-	        setTimeout(function(){
-	            tempThis.removeAllFiles(true);
-	            // $('#Prodcategoria').val('0');
-	            // $('#NameProducto').val('');
-	        }, 4000); 	        	        
+	        
+	        console.log(response);
+
+	        if(!response.lError){          
+      		
+      			Toast.fire({
+						  icon: 'success',
+						  title: 'Edición realizado con exito'
+						})	
+
+			      $('.carousel-inner').empty();			      
+			      response.data.forEach((el, i) => {
+			      	let avtiv = (i ==0)?'active':'';
+			      	let cover = (el.coverimg) ? true : false;			      	
+			      	$('.carousel-inner').append(getItem(avtiv,'../public/'+el.url_path,'',el.idimgrel,cover));
+			      	$('.carousel-indicators').append(getindicators(i,cover));
+			      });        
+			      $('[data-toggle="tooltip"]').tooltip();
+			      tempThis = this;
+		        setTimeout(function(){
+		            tempThis.removeAllFiles(true);	            
+		        }, 4000); 	        	        			      
+
+								      
+			    }
+			    else{
+			      
+			    }	        	        
 	    },
 	    error: function (file, response) {
 	      //file.previewElement.classList.add("dz-error");

@@ -54,7 +54,8 @@
 	                    <div class="header">Editar Producto</div>
 	                    <div class="form-content">
 	                    	<input type="hidden" name="modalidad" id="modalidad" class="crload">
-	                    	<input type="hidden" name="hdditem" id="hdditem">			
+	                    	<input type="hidden" name="hdditem" id="hdditem">
+	                    	<input type="hidden" name="bstate" id="bstate">			
 	                    	<div class="row">	                    		                    	
 	                    		<div class="col-md-4 form-row">
 	                    			<button class="btn btn-primary btn-sm" type="button" id="return_table"><i class="fa fa-arrow-left"></i> Regresar</button>	                    			
@@ -102,7 +103,7 @@
                     				<div class="form-row">
                     					<div class="col-12">
 	                    					<label for="color_clothes" class="control-label">Color</label>
-											<input type="text" name="color_clothes" id="color_clothes" class="form-control crload" required>
+											<input type="text" name="color_clothes" id="color_clothes" class="form-control crload mt-3" required>
 										</div>
 
 										<div class="col-12">

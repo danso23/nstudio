@@ -58,15 +58,17 @@ Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
 
 Route::group(['prefix' => 'admin'], function() {
     Route::get('/catalogoproductos', 'ProductoController@mostrarProductosView')->name('Catalogo.Productos');//->middleware('auth');
-    Route::get('/catalogoproductos_beta', 'ProductoController@mostrarProductosView_beta')->name('Catalogo.ProductosBeta');//->middleware('auth');
+    Route::get('/catalogoproductos_beta', 'ProductoController@mostrarbeta')->name('Catalogo.Productosb');//->middleware('auth');
     Route::get('/jsonproductos', 'ProductoController@jsonProductos')->name('json.productos');//->middleware('auth');
 
     /** GUARDADO**/
     Route::post('/storeProducto/{id}', 'ProductoController@storeProducto')->name('admin.storeProducto');
     
-    Route::post('/storeProducto_beta', 'ProductoController@storeProductoBeta')->name('admin.storeProducto_beta');
-    Route::post('/processimg', 'ProductoController@processimg')->name('admin.processimg');
+    Route::post('/storeProducto_beta', 'ProductoController@storeProductoBeta')->name('admin.storeProducto_beta');    
     Route::post('/changecover', 'ProductoController@changecover')->name('admin.changecover');    
+
+    Route::post('/processimg', 'ProductoController@processimg')->name('admin.processimg');
+    Route::post('/itemsimg', 'ProductoController@getitemimg')->name('admin.processimg');
 });
 
 Route::get('/historia', 'ProductoController@historia')->name('historia');

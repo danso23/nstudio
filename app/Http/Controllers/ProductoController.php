@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 // use Illuminate\Support\Facades\Response;
 use App\Models\ProductoModel AS Producto;
+use App\Models\ImagenModel AS Imagen;
+use App\Models\RelProImagenModel AS RelProImagen;
 use App\Models\CategoriaModel AS Categoria;
 use App\Models\Carrusel;
 use Illuminate\Support\Arr;
@@ -26,10 +28,10 @@ class ProductoController extends Controller{
     	return view('admin.productos')->with('datos', $datos);
     }
 
-    public function mostrarProductosView_beta(){
+    public function mostrarbeta(){
         $categorias = Categoria::where('activo', '1')->selectRaw('id_categoria, nombre_categoria')->get();
         $datos = array('categorias' => $categorias );
-        return view('admin.productosBeta')->with('datos', $datos);
+        return view('admin.productos_beta')->with('datos', $datos);
     }
     
 
@@ -69,16 +71,33 @@ class ProductoController extends Controller{
 
     // }
 
+    function getitemimg(Request $request){
+
+
+        $data['data'] =  RelProImagen::where('rel_img_prod.id_prod',$request->refereimg)
+                ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                ->get()
+                ->toArray();
+
+        $data['lError'] = false;
+
+        return response()->json($data,200);
+
+
+
+    }
+
 
     public function processimg(Request $request){
 
         $Files = $request->file('file');
         $Number_Producto = "producto_".$request->ruta;
         
-        $ruta['real']   = realpath('public')."\\productos\\".$Number_Producto;
+        $ruta['real']   = realpath('public')."\\img\\productos\\".$Number_Producto;
 
         //$ruta['real']   = asset('public')."\\Inicio/";//realpath('')."\\Inicio";
-        $ruta['asset']  = asset('public')."/productos/".$Number_Producto."/";
+        $ruta['asset']  = "/img/productos/".$Number_Producto."/";//asset('public')
 
         if(is_array($Files)){            
             $respuesta = $this->SetImagen($Files,true,$ruta);
@@ -87,54 +106,107 @@ class ProductoController extends Controller{
             $respuesta = $this->SetImagen($Files,false,$ruta);
         }
 
-        $result = Producto::where('id_producto',$request->ruta)
-                            ->select('url_imagen','url_imagen2','url_imagen3','url_imagen4','url_imagen5','url_imagen6')
-                            ->get()->toArray();
+        // $result = Producto::where('id_producto',$request->ruta)
+        //                     ->select('url_imagen','url_imagen2','url_imagen3','url_imagen4','url_imagen5','url_imagen6')
+        //                     ->get()->toArray();
+
+
 
         $arregloUpdate = [];
 
         foreach($respuesta['data'] as $indexImg => $valorIMG){
-            foreach($result as $nodo => $valor){
-                foreach($valor as $index => $valorNo){
-                    if($valorNo == ''){
-                        $arregloUpdate[$index] = $valorIMG['RutaImagen']; 
-                        continue;
-                    }
-                //$respuesta['array'][] = $index;
-                }
-            }       
-            // $valorIMG
-            unset($respuesta['data'][$indexImg]);
+            // foreach($result as $nodo => $valor){
+            //     foreach($valor as $index => $valorNo){
+            //         if($valorNo == ''){
+            //             $arregloUpdate[$index] = $valorIMG['RutaImagen']; 
+            //             continue;
+            //         }
+            //     //$respuesta['array'][] = $index;
+            //     }
+            // }       
+            // // $valorIMG
+            // unset($respuesta['data'][$indexImg]);
+
+            $idImg = Imagen::create(['path_url' => $valorIMG['RutaImagen']])->id_imagen;
+            RelProImagen::create(
+                ['id_img' => $idImg,//Imagen::create(['path_url' => $valorIMG['RutaImagen']])->id_imagen,
+                 'id_prod' => $request->ruta
+                ]
+            );            
+            $respuesta['imgUp'][$indexImg]['idImg'] = $idImg;
+
         }
         
-        $respuesta['update'] = $arregloUpdate; 
 
-            $producto = Producto::where('id_producto', $request->ruta)
-                ->update($arregloUpdate);
+        $respuesta['data'] =  RelProImagen::where('rel_img_prod.id_prod',$request->ruta)
+                ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                ->get()
+                ->toArray();
 
-        // if(preg_match('/^Url_imagen[0-9]?/i', $indexNodo)){                    
-        //             $arrayImagenes[$indexNodo] = $valorNodo;
-        // }
+        $respuesta['lError'] = false;
+
+        // return response()->json($data,200);
+
+        $respuesta['infoFile'] = $Files;  
+
+         
 
         return response()->json($respuesta, 200);
     }
 
     public function changecover(Request $request){
                 
-        $idItem     = $request->hhuiid;
-        $directory  = $request->path;
+        // $idItem     = $request->hhuiid;        
+        $dataReturn = [];
+        $coverActual =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
+                        ->where('imagenes.cover',1)
+                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                        // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                        ->select('rel_img_prod.id_img as idimgrel')
+                        ->get()
+                        ->toArray();                                     
+        
+        
+        if(!empty($coverActual)){
+            $unSetCover = Imagen::where('id_imagen',$coverActual[0]['idimgrel'])                        
+                        ->update([
+                            'cover' => 0                            
+                        ]);                                        
+        }
+        
+        // else{
 
+            $coverNuevo =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
+                            ->where('rel_img_prod.id_img',$request->setcover)                    
+                            ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                            // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                            ->select('rel_img_prod.id_img as idimgrel')
+                            ->get()
+                            ->toArray();
+             ;
+            if(!empty($coverNuevo)){
+                $setCover = Imagen::where('id_imagen',$coverNuevo[0]['idimgrel'])                        
+                            ->update([
+                                'cover' => 1
+                            ]);  
+                //return response()->json($setCover,200);
+                if($setCover){
+                    $dataReturn['cMensaje']  = 'Actualización de la portada realizado con exito';
+                    $dataReturn['lError']    = false;
+                }
+                else{
+                    $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
+                    $dataReturn['lError']    = true;
+                }
+            }
+            else{
+                $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
+                $dataReturn['lError']    = true;
+            }
+        // }
 
-        // $GetData = Producto::where('id_producto',$idItem)
-        //                      ->where('')
-
-        return response()->json(
-            [
-                'uuid' => $idItem,
-                'directory' => $directory
-            ],
-            200
-        );
+        return response()->json($dataReturn,200);
 
     }
 
@@ -151,7 +223,7 @@ class ProductoController extends Controller{
                     $NombreImagen   = $this->LimpiarNombres($fileUno->getClientOriginalName());                   
                                         
                     $arregloImagenesDone['RutaImagen']   = $ruta['asset'].$NombreImagen;
-                    $fileUno->move($ruta['real'],$arregloImagenesDone['RutaImagen']);
+                    $fileUno->move($ruta['real'],$NombreImagen);//$arregloImagenesDone['RutaImagen']);
 
                     $arrgloFinal[] = $arregloImagenesDone;
                 }
