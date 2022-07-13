@@ -37,7 +37,6 @@ $(document).ready(function(){
 		objDataTbl.destroy();
 		dataCurso() ;
 		objDataTbl.columns.adjust().draw();
-
 	});
 	
 
@@ -102,23 +101,18 @@ $(document).ready(function(){
       if(!data.lError){  
 
       	$('.product-image3').find('span').each(function(){ 
-      			$(this).remove();
+      			$(this).prev('ul.social').prepend('<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+$(this).prev('ul.social').find('.deleteIm').data('del')+'"><i class="fa fa-cog"></i></a></li>');
+      			$(this).remove();      			
       	});
 
       	$('.carousel-inner').find('#prod_'+getElement).each(function(){
-      		console.log("Si busque la nueva portada");
-      		$(this).closest('.product-grid3').find('.product-image3').append('<span class="product-new-label">Portada</span>');
-      		// $(this).closest('div').next().closest('.product-image3').append('<span class="product-new-label">Portada</span>');//.closest('.product-image3').html());
 
-      	});//.length > 0){           	     	
-    //   	if($('.carousel-inner').find('#prod_'+file.upload.uuid).length > 0){
-				// 		document.getElementById("prod_"+file.upload.uuid).remove();
-				// }
+      		$(this).closest('div').find('.product-image3').append('<span class="product-new-label">Portada</span>');
+      		$(this).find('ul.social .setPortada').remove();
+      		$('.tooltip').tooltip('hide');
 
-      	// $('.product-image3').append('<span class="product-new-label">Portada</span>');
-      	// find('div.product-image3',function(){ 
-      	// 		$(this).append('<span class="product-new-label">Portada</span>');
-      	// });
+      	});        	     	
+
 
         Toast.fire({
 						  	icon: 'success',
@@ -377,16 +371,16 @@ function storeCurso(position, tipoAccion){
     });
 
 
-		$('.carousel-inner').empty();
-		var Element = "";
+		// $('.carousel-inner').empty();
+		// var Element = "";
 
-		for(var i=3;i<=8;i++){
-			var avtiv = (i==3)?'active':'';
-			if(datos[i] != '' && datos[i] != "null" && datos[i] != null){
-				// Element = getItem(avtiv,datos[i]);
-				$('.carousel-inner').append(getItem(avtiv,'../public/img/productos/'+datos[i]));
-			}
-		}
+		// for(var i=3;i<=8;i++){
+		// 	var avtiv = (i==3)?'active':'';
+		// 	if(datos[i] != '' && datos[i] != "null" && datos[i] != null){
+		// 		// Element = getItem(avtiv,datos[i]);
+		// 		$('.carousel-inner').append(getItem(avtiv,'../public/img/productos/'+datos[i]));
+		// 	}
+		// }
 
 							
 	}
@@ -432,7 +426,7 @@ function getItem(active,url,uuid = '',cover){
 
 function getindicators(number, cover){
 
-		let active = (cover) ?'active' : '';
+		let active = (cover) ? 'active' : '';
 		return '<li data-target="#MiddleCarousel" data-slide-to="'+number+'" class="'+active+'"></li>';	
 }
 
@@ -568,11 +562,15 @@ $(function() {
 						  title: 'Edición realizado con exito'
 						})	
 
-			      $('.carousel-inner').empty();			      
+			      $('.carousel-inner').empty();	
+			      $('.carousel-indicators').empty();		      
 			      response.data.forEach((el, i) => {
-			      	let avtiv = (i ==0)?'active':'';
-			      	let cover = (el.coverimg) ? true : false;			      	
-			      	$('.carousel-inner').append(getItem(avtiv,'../public/'+el.url_path,'',el.idimgrel,cover));
+			      	let avtiv = (i == 0) ? 'active' : '';
+			      	let cover = (el.coverimg) ? true : false;	
+			      	let path  = '../public/'+el.url_path;
+			      	console.log(cover);	
+			      	//function getItem(active,url,uuid = '',cover){	      	
+			      	$('.carousel-inner').append(getItem(avtiv,path,el.idimgrel,cover));
 			      	$('.carousel-indicators').append(getindicators(i,cover));
 			      });        
 			      $('[data-toggle="tooltip"]').tooltip();

@@ -77,6 +77,7 @@ class ProductoController extends Controller{
         $data['data'] =  RelProImagen::where('rel_img_prod.id_prod',$request->refereimg)
                 ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
                 ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                ->orderby('imagenes.cover','desc')
                 ->get()
                 ->toArray();
 
@@ -91,12 +92,20 @@ class ProductoController extends Controller{
 
     public function processimg(Request $request){
 
-        $Files = $request->file('file');
-        $Number_Producto = "producto_".$request->ruta;
-        
-        $ruta['real']   = realpath('public')."\\img\\productos\\".$Number_Producto;
+        $slash = "\\";
+        $slasremp = '/';
 
-        //$ruta['real']   = asset('public')."\\Inicio/";//realpath('')."\\Inicio";
+        if (DIRECTORY_SEPARATOR === '/') {
+            // unix, linux, mac
+            $slash = "/";
+            $slasremp = '\\';
+        }
+
+        $Files = $request->file('file');
+        $Number_Producto = "producto_".$request->ruta;        
+        
+        $ruta['real']   = public_path().$slash."img".$slash."productos".$slash.$Number_Producto;
+        // return response()->json($ruta, 200);        
         $ruta['asset']  = "/img/productos/".$Number_Producto."/";//asset('public')
 
         if(is_array($Files)){            
@@ -105,27 +114,10 @@ class ProductoController extends Controller{
         else{
             $respuesta = $this->SetImagen($Files,false,$ruta);
         }
-
-        // $result = Producto::where('id_producto',$request->ruta)
-        //                     ->select('url_imagen','url_imagen2','url_imagen3','url_imagen4','url_imagen5','url_imagen6')
-        //                     ->get()->toArray();
-
-
-
+        
         $arregloUpdate = [];
 
-        foreach($respuesta['data'] as $indexImg => $valorIMG){
-            // foreach($result as $nodo => $valor){
-            //     foreach($valor as $index => $valorNo){
-            //         if($valorNo == ''){
-            //             $arregloUpdate[$index] = $valorIMG['RutaImagen']; 
-            //             continue;
-            //         }
-            //     //$respuesta['array'][] = $index;
-            //     }
-            // }       
-            // // $valorIMG
-            // unset($respuesta['data'][$indexImg]);
+        foreach($respuesta['data'] as $indexImg => $valorIMG){            
 
             $idImg = Imagen::create(['path_url' => $valorIMG['RutaImagen']])->id_imagen;
             RelProImagen::create(
@@ -134,23 +126,18 @@ class ProductoController extends Controller{
                 ]
             );            
             $respuesta['imgUp'][$indexImg]['idImg'] = $idImg;
-
         }
         
 
         $respuesta['data'] =  RelProImagen::where('rel_img_prod.id_prod',$request->ruta)
                 ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
                 ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                ->orderby('imagenes.cover','desc')
                 ->get()
                 ->toArray();
 
-        $respuesta['lError'] = false;
-
-        // return response()->json($data,200);
-
-        $respuesta['infoFile'] = $Files;  
-
-         
+        $respuesta['lError'] = false;        
+        $respuesta['infoFile'] = $Files;          
 
         return response()->json($respuesta, 200);
     }
@@ -161,8 +148,7 @@ class ProductoController extends Controller{
         $dataReturn = [];
         $coverActual =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
                         ->where('imagenes.cover',1)
-                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
-                        // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')                        
                         ->select('rel_img_prod.id_img as idimgrel')
                         ->get()
                         ->toArray();                                     
@@ -175,39 +161,37 @@ class ProductoController extends Controller{
                         ]);                                        
         }
         
-        // else{
+    
 
-            $coverNuevo =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
-                            ->where('rel_img_prod.id_img',$request->setcover)                    
-                            ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
-                            // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
-                            ->select('rel_img_prod.id_img as idimgrel')
-                            ->get()
-                            ->toArray();
-             ;
-            if(!empty($coverNuevo)){
-                $setCover = Imagen::where('id_imagen',$coverNuevo[0]['idimgrel'])                        
-                            ->update([
-                                'cover' => 1
-                            ]);  
-                //return response()->json($setCover,200);
-                if($setCover){
-                    $dataReturn['cMensaje']  = 'Actualización de la portada realizado con exito';
-                    $dataReturn['lError']    = false;
-                }
-                else{
-                    $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
-                    $dataReturn['lError']    = true;
-                }
+        $coverNuevo =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
+                        ->where('rel_img_prod.id_img',$request->setcover)                    
+                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                        // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                        ->select('rel_img_prod.id_img as idimgrel')
+                        ->get()
+                        ->toArray();
+         ;
+        if(!empty($coverNuevo)){
+            $setCover = Imagen::where('id_imagen',$coverNuevo[0]['idimgrel'])                        
+                        ->update([
+                            'cover' => 1
+                        ]);  
+            //return response()->json($setCover,200);
+            if($setCover){
+                $dataReturn['cMensaje']  = 'Actualización de la portada realizado con exito';
+                $dataReturn['lError']    = false;
             }
             else{
                 $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
                 $dataReturn['lError']    = true;
             }
-        // }
+        }
+        else{
+            $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
+            $dataReturn['lError']    = true;
+        }        
 
         return response()->json($dataReturn,200);
-
     }
 
     function SetImagen($file, $bArreglo, $ruta){
