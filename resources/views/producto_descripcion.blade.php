@@ -41,7 +41,7 @@
                             @foreach($datos['imagenes'] as $imagen => $valor)
                                 @if(!empty($valor))                                   
                                     <div class="carousel-item {{ ($int2 == 0) ? 'active' : '' }}">
-                                        <img src="{{ asset('public/img/productos') }}/{{ $valor }}" alt="" class="mx-auto d-block img-prod">
+                                        <img src="{{ asset('public') }}/{{ $valor['url_path'] }}" alt="" class="mx-auto d-block img-prod">
                                     </div>
                                     @php $int2++; @endphp
                                 @endif

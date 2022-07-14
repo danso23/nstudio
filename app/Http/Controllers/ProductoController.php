@@ -12,6 +12,7 @@ use App\Models\CategoriaModel AS Categoria;
 use App\Models\Carrusel;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\UtilsController AS Utils;
+use Illuminate\Support\Facades\File; 
 use DB;
 
 class ProductoController extends Controller{
@@ -37,7 +38,7 @@ class ProductoController extends Controller{
 
     /** JSON PARA ADMIN**/
     public function jsonProductos(){    
-        $productos = Producto::all()->toArray();
+        $productos = Producto::where('activo',1)->get()->toArray();
         return response()->json($productos);
     }
 
@@ -73,7 +74,6 @@ class ProductoController extends Controller{
 
     function getitemimg(Request $request){
 
-
         $data['data'] =  RelProImagen::where('rel_img_prod.id_prod',$request->refereimg)
                 ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
                 ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
@@ -84,8 +84,28 @@ class ProductoController extends Controller{
         $data['lError'] = false;
 
         return response()->json($data,200);
+    }
+
+    function deleteitem(Request $request){
 
 
+        $producto = Producto::where('id_producto', $request->refereimg)
+                    ->update([
+                        'activo' => 0,
+                        // 'desc_producto' => $request->desc_curso,
+                        // 'url_imagen' => $request->portada,
+                        // 'id_categoria' => $request->categoria,
+                        // 'cantidad_s' => $request->cantidad_s,
+                        // 'cantidad_m' => $request->cantidad_m,
+                        // 'cantidad_g' => $request->cantidad_g,
+                    ]);
+        
+        $result = array(
+            "lError" => false,
+            "cMensaje" => "'El registro ha sido eliminado: ' [$request->refereimg]"
+        );
+
+        return response()->json($result,200);
 
     }
 
@@ -140,6 +160,91 @@ class ProductoController extends Controller{
         $respuesta['infoFile'] = $Files;          
 
         return response()->json($respuesta, 200);
+    }
+    
+    public function delimg(Request $request){
+                
+        // $idItem     = $request->hhuiid;        
+        $dataReturn = [];
+        $ImagenActual =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
+                        ->where('rel_img_prod.id_img',$request->refereimg)                        
+                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')                        
+                        ->select('rel_img_prod.id_img as idimgrel','imagenes.path_url as path_img')
+                        ->get()
+                        ->toArray();
+
+        if(!empty($ImagenActual)){
+            if(!empty($ImagenActual[0]['idimgrel'])){
+                RelProImagen::where('rel_img_prod.id_img',$ImagenActual[0]['idimgrel'])->delete();
+            }
+
+            if(!empty($ImagenActual[0]['idimgrel'])){
+                if(Imagen::where('imagenes.id_imagen',$ImagenActual[0]['idimgrel'])->delete()){
+
+                     $slash = "\\";
+                    $slasremp = '/';
+
+                    if (DIRECTORY_SEPARATOR === '/') {
+                        // unix, linux, mac
+                        $slash = "/";
+                        $slasremp = '\\';
+                    }
+
+                    // $Files = $request->file('file');
+                    // $Number_Producto = "producto_".$request->ruta;        
+                    
+                    $image_path = public_path().$ImagenActual[0]['path_img'];
+                    
+                    if (File::exists($image_path)) {
+                        //File::delete($image_path);
+                        unlink($image_path);
+                        $return['cMensaje'] = "Se elimino la imagen ".$image_path;
+                    }
+                }
+            }
+
+        }                                                             
+        
+        return response()->json($return,200);
+        
+        if(!empty($coverActual)){
+            $unSetCover = Imagen::where('id_imagen',$coverActual[0]['idimgrel'])                        
+                        ->update([
+                            'cover' => 0                            
+                        ]);                                        
+        }
+        
+    
+
+        $coverNuevo =  RelProImagen::where('rel_img_prod.id_prod',$request->uuidprod)
+                        ->where('rel_img_prod.id_img',$request->setcover)                    
+                        ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                        // ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                        ->select('rel_img_prod.id_img as idimgrel')
+                        ->get()
+                        ->toArray();
+         ;
+        if(!empty($coverNuevo)){
+            $setCover = Imagen::where('id_imagen',$coverNuevo[0]['idimgrel'])                        
+                        ->update([
+                            'cover' => 1
+                        ]);  
+            //return response()->json($setCover,200);
+            if($setCover){
+                $dataReturn['cMensaje']  = 'Actualización de la portada realizado con exito';
+                $dataReturn['lError']    = false;
+            }
+            else{
+                $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
+                $dataReturn['lError']    = true;
+            }
+        }
+        else{
+            $dataReturn['cMensaje']  = "Ocurrio un detalle al momento de actualizar";
+            $dataReturn['lError']    = true;
+        }        
+
+        return response()->json($dataReturn,200);
     }
 
     public function changecover(Request $request){
@@ -392,8 +497,8 @@ class ProductoController extends Controller{
         catch (\Exception $e) {
             DB::rollback();
             $result = array(
-                "Error" => true,
-                "message" => "Ha ocurrido un error, por favor contacte al administrador o inténtelo más tarde | ".$e
+                "lError" => true,
+                "cMensaje" => "Ha ocurrido un error, por favor contacte al administrador o inténtelo más tarde."//.$e
             );
             return response()->json($result);
         }
@@ -448,19 +553,28 @@ class ProductoController extends Controller{
         $productos  = Producto::where('id_producto', $id)->get();
         $categorias = Categoria::where('activo', '1')->selectRaw('id_categoria, nombre_categoria')->get();
         
+        $arrayImagenes =  RelProImagen::where('rel_img_prod.id_prod',$id)
+                         ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                         ->select('rel_img_prod.id_img as idimgrel','rel_img_prod.id_prod as item','imagenes.path_url as url_path','imagenes.cover as coverimg')
+                         ->orderby('imagenes.cover','desc')
+                         ->get()
+                         ->toArray();
+
         $utils = new Utils();        
 
         $tempProductos = json_decode(json_encode($productos), true);
-        $arrayImagenes = [];
-        foreach($tempProductos as $index => $NodoProd){
-            
-            foreach($NodoProd as $indexNodo => $valorNodo){
-                if(preg_match('/^Url_imagen[0-9]?/i', $indexNodo)){                    
-                    $arrayImagenes[$indexNodo] = $valorNodo;
-                }
+        // $arrayImagenes = [];
 
-            }            
-        }
+
+        // foreach($tempProductos as $index => $NodoProd){
+            
+        //     foreach($NodoProd as $indexNodo => $valorNodo){
+        //         if(preg_match('/^Url_imagen[0-9]?/i', $indexNodo)){                    
+        //             $arrayImagenes[$indexNodo] = $valorNodo;
+        //         }
+
+        //     }            
+        // }
                 
         if(!empty($productos[0])){
             $monedaConvertida     = $utils->convertCurrency($productos[0]->precio);//$this->convertCurrency($productos[0]->precio);
@@ -476,18 +590,35 @@ class ProductoController extends Controller{
     }
 
     public function productoXCategoria($id){
+        
+        /*
+            productos.busto_s, productos.busto_m, 
+                        productos.busto_g, productos.largo_s, productos.largo_m, 
+                        productos.largo_g, productos.manga_s, productos.manga_m, productos.manga_g
+        */
+
         $productos = Producto::join('categorias', 'productos.id_categoria', 'categorias.id_categoria')
-        ->selectRaw('productos.id_producto, categorias.nombre_categoria, productos.nombre_producto, productos.desc_producto, productos.url_imagen, productos.precio, productos.cantidad_s, productos.cantidad_m, productos.cantidad_g, productos.busto_s, productos.busto_m, productos.busto_g, productos.largo_s, productos.largo_m, productos.largo_g, productos.manga_s, productos.manga_m, productos.manga_g')
-        ->where('productos.id_categoria', $id)
-        ->where('productos.activo', 1)
-        ->get();
+                     ->rightJoin('rel_img_prod','rel_img_prod.id_prod','productos.id_producto')
+                     ->join('imagenes','imagenes.id_imagen','rel_img_prod.id_img')
+                     ->where('productos.id_categoria', $id)
+                     ->where('productos.activo', 1)
+                     ->where('imagenes.cover',1)
+                     ->selectRaw('productos.id_producto, categorias.nombre_categoria, productos.nombre_producto, 
+                        productos.desc_producto, productos.url_imagen, 
+                        productos.precio, productos.cantidad_s, productos.cantidad_m, 
+                        productos.cantidad_g,imagenes.path_url as path_cover')
+                     ->get();//->toArray();
+        // dd($productos);
         $categorias = Categoria::where('activo', '1')->selectRaw('id_categoria, nombre_categoria')->get();
+        
         $utils = new Utils();
         foreach($productos as $producto){
             $monedaConvertida = $utils->convertCurrency($producto->precio);//$this->convertCurrency($producto->precio);
             $producto->precio = $monedaConvertida;
         }
+        
         $datos = array('productos' => $productos, 'categorias' => $categorias);
+        
         return view('categoria')->with('datos', $datos);
         
     }

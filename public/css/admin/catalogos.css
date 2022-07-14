@@ -432,3 +432,8 @@ select.form-control:not([size]):not([multiple]) {
         height: 405px !important;
     }
 }
+
+
+a.delete{
+    cursor: pointer;
+}

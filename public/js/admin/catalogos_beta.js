@@ -3,23 +3,47 @@ var objTarget;
 var elemtetmp;
 
 const Toast = Swal.mixin({
-								  toast: true,
-								  position: 'center',
-								  showConfirmButton: false,
-								  timer: 3000,
-								  timerProgressBar: true,
-								  didOpen: (toast) => {
-								    toast.addEventListener('mouseenter', Swal.stopTimer)
-								    toast.addEventListener('mouseleave', Swal.resumeTimer)
-								  }
-								})
+							  toast: true,
+							  position: 'center',
+							  showConfirmButton: false,
+							  timer: 3000,
+							  timerProgressBar: true,
+							  didOpen: (toast) => {
+							    toast.addEventListener('mouseenter', Swal.stopTimer)
+							    toast.addEventListener('mouseleave', Swal.resumeTimer)
+							  }
+							})
+
+$.ajaxSetup({
+  headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+  }
+});
+
+$('.formatNumber').on('keyup',function(){
+
+	// skip for arrow keys
+  if(event.which >= 37 && event.which <= 40){
+    event.preventDefault();
+  }
+
+  $(this).val(function(index, value) {
+    return value
+      .replace(/\D/g, "")
+      .replace(/([0-9])([0-9]{2})$/, '$1.$2')  
+      .replace(/\B(?=(\d{3})+(?!\d)\.?)/g, ",")
+    ;
+  });
+
+		// replace(/[^\d.,]+/g,'').replace(/[.,](?![^,.]*$)/g, '').replace(',','.')
+  //        .replace(/(\.\d{3})\d*$/, '$1 ')
+  //         .replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 '));
+
+});
 
 
 $(document).ready(function(){	
-
-
-	// Activate tooltip		
-	
+ 			
 	
 	/**************************************** Section view *******************************************************/
 	$('#return_table').on('click',function(){
@@ -33,6 +57,11 @@ $(document).ready(function(){
 			$(this).val('');
 		});				
 		document.querySelector('#'+form[0].id+' #hdditem').value = 0;		
+		
+		if (myDropzone.files.length > 0){ 
+			myDropzone.removeFile(myDropzone.files[0]);
+		}
+		
 
 		objDataTbl.destroy();
 		dataCurso() ;
@@ -45,84 +74,145 @@ $(document).ready(function(){
 	// $("#button").click(function (e) {
 	$('#formCurso').on('submit',function(e){                
         e.preventDefault();
+        let bS = false;
+        $('#gesto').find('.crload').each(function(){							
+					if($(this).val() == ''){
+						$(this).focus();
+						Toast.fire({
+						  icon: 'error',
+						  title: 'Acompleta la información necesaria'
+						})
+						bS = true;
+						
+						return false;
+					}
+				});	
         
-        $.ajaxSetup({
-			    headers: {
-			        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			    }
-				});
+        if(!bS){
+					$.post({url:url_global+"/admin/storeProducto_beta",data: $('#formCurso').serializeArray(),cache: false,})
+	        .done(function(data,status) {          
+	          
+	          if(!data.lError){          
+	          	$('#hdditem').val(data.cError);
+	          	$('#bstate').val(true);    
 
-        
-				$.post({url:url_global+"/admin/storeProducto_beta",data: $('#formCurso').serializeArray(),cache: false,})
-        .done(function(data,status) {          
-          
-          if(!data.lError){          
-          	$('#hdditem').val(data.cError);
-          	$('#bstate').val(true);    
+	          				       
+					    if(myDropzone.getRejectedFiles().length > 0) {
+					        Toast.fire({
+									  icon: 'error',
+									  title: 'Imagenes no validas'
+									})
+					    }
+							else if (myDropzone.files.length > 0){ 
+								myDropzone.processQueue();
+							}
+							else{
+								Toast.fire({
+							  	icon: 'success',
+							  	title: 'Edición realizado con exito'
+								})	
+							}
+	          }
+	          else{
 
-          				       
-				    if(myDropzone.getRejectedFiles().length > 0) {
-				        Toast.fire({
-								  icon: 'error',
-								  title: 'Imagenes no validas'
-								})
-				    }
-						else if (myDropzone.files.length > 0){ 
-							myDropzone.processQueue();
-						}
-						else{
-							Toast.fire({
-						  	icon: 'success',
-						  	title: 'Edición realizado con exito'
-							})	
-						}
-          }
-          else{
-            
-          }
-        });	    
+	            Toast.fire({
+						  	icon: 'error',
+						  	title: data.cMensaje
+							})
+	          }
+	        });	
+        }    
 	});	
 
+	$('.carousel-inner').on('click','a.deleteIm',function(){
+		let hiImg = $(this).data('del');
+		Swal.fire({
+		  title: '¿Estas seguro de eliminar la imagen'+$(this).data('del'),
+		  text: "¡Esta acción no se podra deshacer!",
+		  icon: 'warning',
+		  showCancelButton: true,
+		  confirmButtonColor: '#3085d6',
+		  cancelButtonColor: '#d33',
+		  cancelButtonText: 'Cancelar',
+		  confirmButtonText: '¡Si, Eliminar!'
+		}).then((result) => {
+		  if(result.isConfirmed) {
+		    
+
+		  	$.post({url:url_global+"/admin/delimg",data:{refereimg: hiImg,uuidprod:$('#hdditem').val()} ,cache: false,})
+		    .done(function(data,status) {          
+		     	
+		     	Swal.fire(
+				      '¡Eliminado!',
+				      data,
+				      'success'
+		    		)	 
+		      if(!data.lError){          
+		      	
+		      	objDataTbl.destroy();
+						dataCurso() ;
+						objDataTbl.columns.adjust().draw();
+		        
+		        document.getElementById("prod_"+hiImg).remove();	
+
+		        Swal.fire(
+				      '¡Eliminado!',
+				      data.cMensaje,
+				      'success'
+		    		)		               
+		      }
+		      else{
+		        
+		      }
+		    });		    
+		  }
+		})		
+	});
+
 	$('.carousel-inner').on('click','a.setPortada',function(){
+				
+		Swal.fire({
+        title: 'Procederas a cambiar la portada del producto. ¿Desea continuar?',
+        //showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Aceptar',
+        //denyButtonText: `Regresar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {                        
 
-		$.ajaxSetup({
-	    headers: {
-	        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-	    }
-		});
-		
+        	let getElement = $(this).data('cover');
 
-		//$(this).closest('div').find('img').attr('src');	 product-new-label	
-		let getElement = $(this).data('cover');
+					$.post({url:url_global+"/admin/changecover",data: {uuidprod: $('#hdditem').val(),setcover:getElement},cache: false,})
+			    .done(function(data,status) {          
+			      
+			      if(!data.lError){  
 
-		$.post({url:url_global+"/admin/changecover",data: {uuidprod: $('#hdditem').val(),setcover:getElement},cache: false,})
-    .done(function(data,status) {          
-      
-      if(!data.lError){  
+			      	$('.product-image3').find('span').each(function(){ 
+			      			$(this).prev('ul.social').prepend('<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+$(this).prev('ul.social').find('.deleteIm').data('del')+'"><i class="fa fa-cog"></i></a></li>');
+			      			$(this).remove();      			
+			      	});
 
-      	$('.product-image3').find('span').each(function(){ 
-      			$(this).prev('ul.social').prepend('<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+$(this).prev('ul.social').find('.deleteIm').data('del')+'"><i class="fa fa-cog"></i></a></li>');
-      			$(this).remove();      			
-      	});
+			      	$('.carousel-inner').find('#prod_'+getElement).each(function(){
 
-      	$('.carousel-inner').find('#prod_'+getElement).each(function(){
+			      		$(this).closest('div').find('.product-image3').append('<span class="product-new-label">Portada</span>');
+			      		$(this).find('ul.social .setPortada').remove();
+			      		$('.tooltip').tooltip('hide');
 
-      		$(this).closest('div').find('.product-image3').append('<span class="product-new-label">Portada</span>');
-      		$(this).find('ul.social .setPortada').remove();
-      		$('.tooltip').tooltip('hide');
-
-      	});        	     	
+			      	});        	     	
 
 
-        Toast.fire({
-						  	icon: 'success',
-						  	title: data.cMensaje
-							})	        
-      }
-      else{
-        
-      }
-    });	
+			        Toast.fire({
+									  	icon: 'success',
+									  	title: data.cMensaje
+										})	        
+			      }
+			      else{
+			        
+			      }
+			    });	                 
+        } 
+      })			
 	});
 	
 
@@ -147,6 +237,45 @@ $(document).ready(function(){
 			$("#selectAll").prop("checked", false);
 		}
 	});
+
+	$('#catalogo_productos').on('click','a.delete',function(){		
+
+		Swal.fire({
+		  title: '¿Estas seguro eliminar el folio: '+$(this).data('position')+'?',
+		  text: "¡Esta acción no se podra deshacer!",
+		  icon: 'warning',
+		  showCancelButton: true,
+		  confirmButtonColor: '#3085d6',
+		  cancelButtonColor: '#d33',
+		  cancelButtonText: 'Cancelar',
+		  confirmButtonText: '¡Si, Eliminar!'
+		}).then((result) => {
+		  if(result.isConfirmed) {
+		    
+
+		  	$.post({url:url_global+"/admin/delitem",data:{refereimg: $(this).data('position')} ,cache: false,})
+		    .done(function(data,status) {          
+		      
+		      if(!data.lError){          
+		      	
+		      	objDataTbl.destroy();
+						dataCurso() ;
+						objDataTbl.columns.adjust().draw();
+		        
+		        Swal.fire(
+				      '¡Eliminado!',
+				      data.cMensaje,
+				      'success'
+		    		)		               
+		      }
+		      else{
+		        
+		      }
+		    });		    
+		  }
+		})
+	});
+
 
 
 	/**************************************** Section old *******************************************************/	
@@ -231,11 +360,11 @@ function dataCurso() {
 								"<td>"+el.url_imagen4+"</td>"+
 								"<td>"+el.url_imagen5+"</td>"+
 								"<td>"+el.url_imagen6+"</td>"+
-								"<td>$ "+el.precio+"</td>"+
+								"<td>"+el.precio+"</td>"+
 								"<td>"+el.cantidad_s+"</td>"+ //10
 								"<td>"+
 									"<a href='#editCursoModal_' class='edit' id='btn_edit_"+el.id_producto+"' data-toggle='modal' onclick='storeCurso("+i+","+'"Editar"'+")'><i class='material-icons' data-toggle='tooltip' title='Edit'>&#xE254;</i></a>"+
-									"<a href='#deleteCursoModal' class='delete' id='btn_delete_"+el.id_producto+"' data-toggle='modal' data-position='"+i+"'><i class='material-icons' data-toggle='tooltip' title='Delete'>&#xE872;</i></a>"+
+									"<a class='delete' id='btn_delete_"+el.id_producto+"' data-toggle='modal' data-position='"+el.id_producto+"'><i class='material-icons' data-toggle='tooltip' title='Delete'>&#xE872;</i></a>"+
 								"</td>"+
 								"<td>"+el.id_producto+"</td>"+
 								"<td>"+el.id_categoria+"</td>"+
@@ -311,41 +440,17 @@ function storeCurso(position, tipoAccion){
 
 	if(tipoAccion == "Editar"){
 		var datos = objDataTbl.row( position ).data();
-		document.getElementsByClassName("header")[0].innerText = 'Editar Producto '+datos[1];
-		document.querySelector('#'+form[0].id +' #modalidad').value = "Editar";
-		
-		//document.querySelector('#'+form[0].id +' #portada')value=datos3;
-		// document.querySelector('#'+form[0].id +' #nombre').value		= datos[1];
-		// document.querySelector('#'+form[0].id +' #desc_curso').value	= datos[2];		
-		// document.querySelector('#'+form[0].id +' #precio').value		= (datos[4]  == "null") ? "" : datos[4].replace("$", "");
-		// document.querySelector('#'+form[0].id +' #hddIdCurso').value	= (datos[7]  == "null") ? "" : datos[7];
-		// document.querySelector('#'+form[0].id +' #cantidad_s').value	= (datos[9]  == "null") ? "" : datos[9];
-		// document.querySelector('#'+form[0].id +' #cantidad_m').value	= (datos[10] == "null") ? "" : datos[10];
-		// document.querySelector('#'+form[0].id +' #cantidad_g').value	= (datos[11] == "null") ? "" : datos[11];
-		// document.querySelector('#'+form[0].id +' #busto_s').value		= (datos[12] == "null") ? "" : datos[12];
-		// document.querySelector('#'+form[0].id +' #busto_m').value		= (datos[13] == "null") ? "" : datos[13];
-		// document.querySelector('#'+form[0].id +' #busto_g').value		= (datos[14] == "null") ? "" : datos[14];
-		// document.querySelector('#'+form[0].id +' #largo_s').value		= (datos[15] == "null") ? "" : datos[15];
-		// document.querySelector('#'+form[0].id +' #largo_m').value		= (datos[16] == "null") ? "" : datos[16];
-		// document.querySelector('#'+form[0].id +' #largo_g').value		= (datos[17] == "null") ? "" : datos[17];
-		// document.querySelector('#'+form[0].id +' #manga_s').value		= (datos[18] == "null") ? "" : datos[18];
-		// document.querySelector('#'+form[0].id +' #manga_m').value		= (datos[19] == "null") ? "" : datos[19];
-		// document.querySelector('#'+form[0].id +' #manga_g').value		= (datos[20] == "null") ? "" : datos[20];
-		// document.querySelector('#'+form[0].id +' #color').value			= (datos[21] == "null") ? "" : datos[21];
-		// document.getElementById("modal-title-curso").innerHTML = 'Editar producto N° '+datos[7];
-
-
-		document.querySelector('#'+form[0].id +' #nombre').value			= datos[1];
-		document.querySelector('#'+form[0].id +' #desc_prod').value			= datos[2];
-		document.querySelector('#'+form[0].id +' #precio').value			= datos[9];
-		document.querySelector('#'+form[0].id +' #tall_xs').value			= (datos[14] == "null") ? 0 : datos[14];//datos[14];
-		document.querySelector('#'+form[0].id +' #talla_md').value			= (datos[15] == "null") ? 0 : datos[15];//datos[15];
-		document.querySelector('#'+form[0].id +' #talla_lg').value			= (datos[16] == "null") ? 0 : datos[16];//datos[16];
-		document.querySelector('#'+form[0].id +' #color_clothes').value		= datos[26];
+		document.getElementsByClassName("header")[0].innerText 							= 'Editar Producto '+datos[1];
+		document.querySelector('#'+form[0].id +' #modalidad').value 				= "Editar";
+		document.querySelector('#'+form[0].id +' #nombre').value						= datos[1];
+		document.querySelector('#'+form[0].id +' #desc_prod').value					= datos[2];
+		document.querySelector('#'+form[0].id +' #precio').value						= datos[9];
+		document.querySelector('#'+form[0].id +' #tall_xs').value						= (datos[14] == "null") ? 0 : datos[14];//datos[14];
+		document.querySelector('#'+form[0].id +' #talla_md').value					= (datos[15] == "null") ? 0 : datos[15];//datos[15];
+		document.querySelector('#'+form[0].id +' #talla_lg').value					= (datos[16] == "null") ? 0 : datos[16];//datos[16];
+		document.querySelector('#'+form[0].id +' #color_clothes').value			= datos[26];
 		document.querySelector('#'+form[0].id +' #categoria_cloths').value	= datos[13];
-		document.querySelector('#'+form[0].id+' #hdditem').value = datos[12];
-		// document.querySelector('#'+form[0].id +' #nombre').value		= datos[1];
-				
+		document.querySelector('#'+form[0].id+' #hdditem').value 						= datos[12];				
 		
 
 		$.post({url:url_global+"/admin/itemsimg",data:{refereimg: datos[12]} ,cache: false,})
@@ -355,15 +460,22 @@ function storeCurso(position, tipoAccion){
       	
         $('.carousel-inner').empty();        
         $('.carousel-indicators').empty();
-        data.data.forEach((el, i) => {
+        
+        if(data.data.length > 0){
+	        data.data.forEach((el, i) => {
 
-        	let avtiv = (i ==0) ? 'active': '';
-        	let cover = (el.coverimg) ? true : false;
-        	
-        	$('.carousel-inner').append(getItem(avtiv,'../public/'+el.url_path,el.idimgrel,cover));
-        	$('.carousel-indicators').append(getindicators(i,cover));
-        	$('[data-toggle="tooltip"]').tooltip();
-        });        
+	        	let avtiv = (i ==0) ? 'active': '';
+	        	let cover = (el.coverimg) ? true : false;
+	        	
+	        	$('.carousel-inner').append(getItem(avtiv,'../public/'+el.url_path,el.idimgrel,cover));
+	        	$('.carousel-indicators').append(getindicators(i,cover));
+	        	$('[data-toggle="tooltip"]').tooltip();
+	        });
+	      }
+	      else{
+	      	$('.carousel-inner').append(getItem('active','../public/img/noimage.png','',true));
+	      }
+
       }
       else{
         
@@ -413,7 +525,7 @@ function getItem(active,url,uuid = '',cover){
 				Element     +=  '</div>';
 				Element     +=  '<ul class="social">';
 				Element     +=  (!cover) ? '<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+uuid+'"><i class="fa fa-cog"></i></a></li>' : '';
-				Element     +=      '<li><a data-toggle="tooltip" title="Elimina Imagen" class="deleteIm" data-del="'+uuid+'"><i class="fa fa-trash" data></i></a></li>';
+				Element     +=  (uuid != '') ?    '<li><a data-toggle="tooltip" title="Elimina Imagen" class="deleteIm" data-del="'+uuid+'"><i class="fa fa-trash" data></i></a></li>': '';
 				Element     +=  '</ul>';
 				Element     +=  (cover) ? '<span class="product-new-label">Portada</span>' : '';
 				Element     +=  '</div>';

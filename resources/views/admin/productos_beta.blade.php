@@ -78,7 +78,7 @@
 		                            <textarea class="form-control crload" placeholder="Descripción" id="desc_prod" name="desc_prod"></textarea>
 
 		                            <label class="control-label" for="precio"><i class="fa fa-usd"></i></label>
-		                            <input class="form-control crload" id="precio" name="precio" placeholder="Precio" type="text">
+		                            <input class="form-control crload formatNumber" id="precio" name="precio" placeholder="Precio" type="text">
 		                            		                           
 	                    		</div>
 	                    		
@@ -163,8 +163,10 @@
 									                        <!-- <img class="pic-2" src="https://www.w3schools.com/bootstrap4/img_avatar3.png"> -->
 									                    </div>
 									                    <ul class="social">
-									                        <li><a href="#"><i class="fa fa-shopping-bag"></i></a></li>
-									                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+									                        <!-- <li><a href="#"><i class="fa fa-shopping-bag"></i></a></li> -->
+									                        <!--<li><a href="#"><i class="fa fa-shopping-cart"></i></a></li> -->
+									                        <li><a data-toggle="tooltip" title="Selecciona Portada"><i class="fa fa-cog"></i></a></li>
+															<li><a data-toggle="tooltip" title="Elimina Imagen"><i class="fa fa-trash" data></i></a></li>
 									                    </ul>
 									                    <span class="product-new-label">New</span>
 									                </div>									                
@@ -205,163 +207,7 @@
         </div>
     </div>
     <!--End Tab-->
-
-	<!-- Edit Modal HTML -->
-	<div id="editCursoModal" class="modal fade" tabindex="-1" data-backdrop="false" data-dismiss="modal" style="overflow-y: scroll; position: absolute;">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form id="formCurso_1">
-					@csrf
-					<div class="modal-header">
-						<h4 class="modal-title" id="modal-title-curso">Editar Productos</h4>
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					</div>
-					<div class="modal-body">
-								
-								<div class="form-group">
-									<label for="nombre_" class="textos-cafes">Nombre</label>
-									<input type="text" name="nombre_" id="nombre_" class="form-control" required>
-								</div>
-								<div class="form-group">
-									<label for="desc_curso" class="textos-cafes">Descripción</label>
-									<textarea name="desc_curso" id="desc_curso" class="form-control" required></textarea>
-								</div>	
-
-								<div class="form-group">
-									<label for="precio" class="textos-cafes">Precio</label>
-									<input type="text" name="precio" id="precio" class="form-control" required>
-								</div>																				
-
-								<!-- Fin -->
-								<br><br>
-								<div class="form-group">
-									<label for="portada" class="textos-cafes">Imagen principal</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada" id="portada" onchange="uploadFile(this, 'portadaFile', 'C')">
-									<input type="hidden" name="portadaFile" id="portadaFile">
-								</div>
-								<div class="form-group">
-									<label for="portada2" class="textos-cafes">Imagen 2</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada2" id="portada2" onchange="uploadFile(this, 'portadaFile2', 'C')">
-									<input type="hidden" name="portadaFile2" id="portadaFile2">
-								</div>
-								<div class="form-group">
-									<label for="portada3" class="textos-cafes">Imagen 3</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada3" id="portada3" onchange="uploadFile(this, 'portadaFile3', 'C')">
-									<input type="hidden" name="portadaFile3" id="portadaFile3">
-								</div>
-								<div class="form-group">
-									<label for="portada4" class="textos-cafes">Imagen 4</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada4" id="portada4" onchange="uploadFile(this,'portadaFile4', 'C')">
-									<input type="hidden" name="portadaFile4" id="portadaFile4">
-								</div>
-								<div class="form-group">
-									<label for="portada5" class="textos-cafes">Imagen 5</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada5" id="portada5" onchange="uploadFile(this,'portadaFile5', 'C')">
-									<input type="hidden" name="portadaFile5" id="portadaFile5">
-								</div>
-								<div class="form-group">
-									<label for="portada6" class="textos-cafes">Imagen 6</label>
-									<input type="file" class="form-control custom-input" placeholder="Portada" name="portada6" id="portada6" onchange="uploadFile(this,'portadaFile6', 'C')">
-									<input type="hidden" name="portadaFile6" id="portadaFile6">
-								</div>
-							<!-- </div> -->
-
-							<!-- <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab"> -->
-								<div class="form-group">
-									<label for="categoria" class="textos-cafes"><b>Cantidad de piezas por talla</b></label><br>
-									<table class="table">
-		                            <thead class="textos-cafes">
-		                                <tr>
-		                                <th scope="col" style="width: 30%">S</th>
-		                                <th scope="col" style="width: 30%">M</th>
-		                                <th scope="col" style="width: 30%">L</th>
-		                                </tr>
-		                            </thead>
-		                            <tbody>
-		                                <tr>
-		                                <td class="textos-grises"><input type="text" name="cantidad_s" id="cantidad_s" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="cantidad_m" id="cantidad_m" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="cantidad_g" id="cantidad_g" class="form-control" required></td>
-		                                </tr>
-		                            </tbody>
-		                        </table>
-								</div>
-								<label for="categoria" class="textos-cafes"><b>Guía de tallas</b></label><br>
-								<table class="table">
-		                            <thead class="textos-cafes">
-		                                <tr>
-		                                <th scope="col"></th>
-		                                <th scope="col">S</th>
-		                                <th scope="col">M</th>
-		                                <th scope="col">L</th>
-		                                </tr>
-		                            </thead>
-		                            <tbody>
-		                                <tr>
-		                                <th scope="row" class="textos-cafes">Contorno busto</th>
-		                                <td class="textos-grises"><input type="text" name="busto_s" id="busto_s" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="busto_m" id="busto_m" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="busto_g" id="busto_g" class="form-control" required></td>
-		                                </tr>
-		                                <tr>
-		                                <th scope="row" class="textos-cafes">Contorno cadera</th>
-		                                <td class="textos-grises"><input type="text" name="largo_s" id="largo_s" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="largo_m" id="largo_m" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="largo_g" id="largo_g" class="form-control" required></td>
-		                                </tr>
-		                                <tr>
-		                                <th scope="row" class="textos-cafes">Largo total</th>
-		                                <td class="textos-grises"><input type="text" name="manga_s" id="manga_s" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="manga_m" id="manga_m" class="form-control" required></td>
-		                                <td class="textos-grises"><input type="text" name="manga_g" id="manga_g" class="form-control" required></td>
-		                                </tr>
-		                            </tbody>
-		                        </table>
-								<div class="form-group">
-									<label for="color" class="textos-cafes">Color</label>
-									<input type="text" name="color" id="color" class="form-control textos-small" required>
-								</div>
-								<div class="form-group">
-									<label for="categoria" class="textos-cafes">Categoría</label>
-									<select class="form-control" name="categoria" id="categoria">
-										<option selected hidden value="default">Selecciona una categoría</option>
-										@foreach($datos['categorias'] as $cat)
-											<option value="{{$cat->id_categoria}}">{{$cat->nombre_categoria}}</option>
-										@endforeach
-									</select>
-								</div>
-						<!-- 	</div>
-						</div>	 -->																							
-					</div>
-					<div class="modal-footer">
-						<input type="button" class="btn btn-default" id="btnCancelarCurso" data-dismiss="modal" value="Cancelar">
-						<input type="submit" class="btn btn-info" id="btnGuardarCurso" value="Guardar">
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-	<!-- Delete Modal HTML -->
-	<div id="deleteCursoModal" class="modal fade" data-backdrop="false" data-dismiss="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form>
-					<div class="modal-header">						
-						<h4 class="modal-title">Eliminar Producto</h4>
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					</div>
-					<div class="modal-body">					
-						<p>Are you sure you want to delete these Records?</p>
-						<p class="text-warning"><small>This action cannot be undone.</small></p>
-					</div>
-					<div class="modal-footer">
-						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-						<input type="submit" class="btn btn-danger" onclick="deletCurso('','Eliminar')" value="Delete">
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+	
 </body>
 @endsection
 @section('script')
