@@ -437,3 +437,32 @@ select.form-control:not([size]):not([multiple]) {
 a.delete{
     cursor: pointer;
 }
+
+
+
+#circle, #circle_load
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 100px;
+    height: 100px; 
+    display: none; 
+}
+
+.loader 
+{
+    width: calc(100% - 0px);
+    height: calc(100% - 0px);
+    /*border: 15px solid #48545F;
+    border-top: 15px solid #30FF06;*/
+    border: 15px solid #e6c8bd;
+    border-top: 15px solid #975d47;
+    border-radius: 50%;
+    animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+100% {transform: rotate(360deg);}
+} 

@@ -66,7 +66,7 @@
   								</div>	                    		
 	                    	</div>
 							<br>
-	                    	<div class="row">
+	                    	<div class="row" id="load">
 	                    		<div class="col-lg-4 col-sm-12">
 
 	                    			<h4 class="heading">Información</h4>
@@ -182,12 +182,25 @@
 											<span class="carousel-control-next-icon" aria-hidden="true"></span>
 											<span class="sr-only">Next</span>
 										</a>
+
+										
+
 									</div>
 									<!-- <div class="form-row">
 										subir
 									</div> -->
-	                    		</div>
+									<div id="circle">
+										<div class="loader"></div>
+									</div> 
+	                    		</div>	                    		 
 	                    	</div><!--Fin Row-->
+
+	                    	<div class="row ">
+	                    		<div id="circle_load" class="my-5 p-lg-3">
+									<div class="loader"></div>
+								</div>
+	                    	</div>
+
 	                    	<br>
 	                    	<div class="row">
 	                    		<!-- <div class="col-md-4 form-row">

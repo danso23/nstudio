@@ -75,19 +75,35 @@ $(document).ready(function(){
 	$('#formCurso').on('submit',function(e){                
         e.preventDefault();
         let bS = false;
+
+        $('#load').hide();
+        $('#circle_load').show();
+
         $('#gesto').find('.crload').each(function(){							
-					if($(this).val() == ''){
+					if($(this).val() == '' && $(this).attr('id') != 'modalidad'){
+						
 						$(this).focus();
 						Toast.fire({
 						  icon: 'error',
 						  title: 'Acompleta la información necesaria'
 						})
 						bS = true;
-						
+						$('#load').show();
+        				$('#circle_load').hide();
 						return false;
 					}
 				});	
         
+        if(myDropzone.getRejectedFiles().length > 0) {
+	        Toast.fire({
+					  icon: 'error',
+					  title: 'Imagenes no validas'
+					})
+					$('#load').show();
+        	$('#circle_load').hide();
+					return false;
+				}
+
         if(!bS){
 					$.post({url:url_global+"/admin/storeProducto_beta",data: $('#formCurso').serializeArray(),cache: false,})
 	        .done(function(data,status) {          
@@ -110,7 +126,9 @@ $(document).ready(function(){
 								Toast.fire({
 							  	icon: 'success',
 							  	title: 'Edición realizado con exito'
-								})	
+								});
+								$('#load').show();
+        				$('#circle_load').hide();
 							}
 	          }
 	          else{
@@ -311,7 +329,7 @@ function dataCurso() {
 		url: url_global+"/admin/jsonproductos",
 		success: function(data){
 			var element ="";
-			console.log(data);
+			
 			element +="<thead>"+
                     	"<tr>"+
 							"<th>"+"Folio"+"</th>"+
@@ -460,7 +478,9 @@ function storeCurso(position, tipoAccion){
       	
         $('.carousel-inner').empty();        
         $('.carousel-indicators').empty();
-        
+        $('#MiddleCarousel').hide();
+        $('#circle').show();
+
         if(data.data.length > 0){
 	        data.data.forEach((el, i) => {
 
@@ -475,6 +495,9 @@ function storeCurso(position, tipoAccion){
 	      else{
 	      	$('.carousel-inner').append(getItem('active','../public/img/noimage.png','',true));
 	      }
+
+	      $('#MiddleCarousel').show();
+        $('#circle').hide();
 
       }
       else{
@@ -571,7 +594,7 @@ function guardarProducto(){
 				msg = 'Se aborto el proceso.';
 			else
 				msg = 'Uncaught Error.\n' + jqXHR.responseText;
-			console.log(msg);
+			
 			alert("Ocurrio un error[1]")
 		}
 	});
@@ -664,9 +687,7 @@ $(function() {
 	    success: function (file, response) {
 	        var imgName = response;
 	        file.previewElement.classList.add("dz-success");
-	        
-	        console.log(response);
-
+	        	        
 	        if(!response.lError){          
       		
       			Toast.fire({
@@ -679,8 +700,7 @@ $(function() {
 			      response.data.forEach((el, i) => {
 			      	let avtiv = (i == 0) ? 'active' : '';
 			      	let cover = (el.coverimg) ? true : false;	
-			      	let path  = '../public/'+el.url_path;
-			      	console.log(cover);	
+			      	let path  = '../public/'+el.url_path;			      	
 			      	//function getItem(active,url,uuid = '',cover){	      	
 			      	$('.carousel-inner').append(getItem(avtiv,path,el.idimgrel,cover));
 			      	$('.carousel-indicators').append(getindicators(i,cover));
@@ -688,9 +708,11 @@ $(function() {
 			      $('[data-toggle="tooltip"]').tooltip();
 			      tempThis = this;
 		        setTimeout(function(){
-		            tempThis.removeAllFiles(true);	            
+		            tempThis.removeAllFiles(true);	
+		            $('#load').show();
+        				$('#circle_load').hide();            
 		        }, 4000); 	        	        			      
-
+		        
 								      
 			    }
 			    else{
