@@ -172,7 +172,7 @@ class ProductoController extends Controller{
                         ->select('rel_img_prod.id_img as idimgrel','imagenes.path_url as path_img')
                         ->get()
                         ->toArray();
-
+        $return['cMensaje'] = 'La operacion se realizo correctamente';
         if(!empty($ImagenActual)){
             if(!empty($ImagenActual[0]['idimgrel'])){
                 RelProImagen::where('rel_img_prod.id_img',$ImagenActual[0]['idimgrel'])->delete();
@@ -202,7 +202,6 @@ class ProductoController extends Controller{
                     }
                 }
             }
-
         }                                                             
         
         return response()->json($return,200);
@@ -434,7 +433,7 @@ class ProductoController extends Controller{
                     'nombre_producto' => $request->nombre,
                     'desc_producto'   => $request->desc_prod,
                     // 'url_imagen'      => $request->portada,
-                    'precio'          => str_replace("$","",$request->precio),
+                    'precio'          => str_replace(["$",","],"",$request->precio),
                     'id_categoria'    => $request->categoria_cloths,
                     'color'           => $request->color_clothes,
                     'cantidad_s'      => $request->tall_xs,

@@ -170,8 +170,11 @@ $(document).ready(function(){
 		      	objDataTbl.destroy();
 						dataCurso() ;
 						objDataTbl.columns.adjust().draw();
-		        
-		        document.getElementById("prod_"+hiImg).remove();	
+
+		        document.getElementById("prod_"+hiImg).remove();
+		        $('#prod_'+hiImg).prev().addClass('active');
+
+		        setActive();
 
 		        Swal.fire(
 				      '¡Eliminado!',
@@ -419,6 +422,7 @@ function crearDataTable(table, target){
 						autoWidth: false,
 						order: [ 0, 'asc' ],
 						serverside:true,
+						stateSave: true,
 						language: {
 							"zeroRecords": "No se encontró coincidencias",
 							"info": "Mostrando la página _PAGE_ de _PAGES_",
@@ -547,8 +551,8 @@ function getItem(active,url,uuid = '',cover){
 				// Element     +=  '<!-- <img class="pic-2" src="https://www.w3schools.com/bootstrap4/img_avatar3.png"> -->';
 				Element     +=  '</div>';
 				Element     +=  '<ul class="social">';
-				Element     +=  (!cover) ? '<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+uuid+'"><i class="fa fa-cog"></i></a></li>' : '';
-				Element     +=  (uuid != '') ?    '<li><a data-toggle="tooltip" title="Elimina Imagen" class="deleteIm" data-del="'+uuid+'"><i class="fa fa-trash" data></i></a></li>': '';
+				Element     +=  (!cover && active !== 0) ? '<li><a data-toggle="tooltip" title="Selecciona Portada" class="setPortada" data-cover="'+uuid+'"><i class="fa fa-cog"></i></a></li>' : '';
+				Element     +=  (uuid != '' && active !== 0) ?    '<li><a data-toggle="tooltip" title="Elimina Imagen" class="deleteIm" data-del="'+uuid+'"><i class="fa fa-trash" data></i></a></li>': '';
 				Element     +=  '</ul>';
 				Element     +=  (cover) ? '<span class="product-new-label">Portada</span>' : '';
 				Element     +=  '</div>';
@@ -563,6 +567,17 @@ function getindicators(number, cover){
 
 		let active = (cover) ? 'active' : '';
 		return '<li data-target="#MiddleCarousel" data-slide-to="'+number+'" class="'+active+'"></li>';	
+}
+
+function setActive(){
+	let aux = 1;
+  $('.carousel-inner').find('.carousel-item').each(function(){							
+		
+		if (aux == 1) {								
+			$(this).addClass('active');
+		}
+		aux++;
+	});
 }
 
 function guardarProducto(){
@@ -632,12 +647,13 @@ $(function() {
 
     		if($('.carousel-inner').find('#'+file.upload.uuid+'.active').length > 0){						
 						$('#'+file.upload.uuid+'.active').removeClass('active');
-						$('#'+file.upload.uuid).prev().addClass('active');	
-						document.getElementById("prod_"+file.upload.uuid).remove();						
+						// $('#'+file.upload.uuid).prev().addClass('active');	
+						document.getElementById("prod_"+file.upload.uuid).remove();												
 				}    		
 				else{
 					if($('.carousel-inner').find('#prod_'+file.upload.uuid).length > 0){
 						document.getElementById("prod_"+file.upload.uuid).remove();
+						setActive();
 					}
 				}
 
@@ -651,7 +667,7 @@ $(function() {
     				if($('.carousel-inner').find('#prod_'+element.upload.uuid).length == 0){
 
     					if(file.upload.uuid == element.upload.uuid){
-    						$('.carousel-inner').append(getItem('',file.dataURL,file.upload.uuid));	        
+    						$('.carousel-inner').append(getItem(0,file.dataURL,file.upload.uuid));	        
 	      				NumberProd++;
     					}
     				}    				
