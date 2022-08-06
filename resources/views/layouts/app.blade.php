@@ -16,7 +16,7 @@
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="{{ asset('public/img/favicon.png') }}" />
     <!-- Font Awesome icons (free version)-->
-    <script src="{{ asset('public/js/all.js') }}" crossorigin="anonymous"></script>
+    <!-- <script src="{{ asset('public/js/all.js') }}" crossorigin="anonymous"></script> -->
     <!-- Google fonts-->
     <link href="{{ asset('public/css/font-family.css') }}" rel="stylesheet" /><!-- Merriweather-->
     <link href="{{ asset('public/css/font-family2.css') }}" rel="stylesheet" type="text/css" />

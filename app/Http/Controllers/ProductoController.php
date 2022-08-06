@@ -38,7 +38,8 @@ class ProductoController extends Controller{
 
     /** JSON PARA ADMIN**/
     public function jsonProductos(){    
-        $productos = Producto::where('activo',1)->get()->toArray();
+        $productos = Producto::join('categorias','categorias.id_categoria','productos.id_categoria')
+                                ->where('productos.activo',1)->get()->toArray();
         return response()->json($productos);
     }
 
@@ -198,7 +199,7 @@ class ProductoController extends Controller{
                     if (File::exists($image_path)) {
                         //File::delete($image_path);
                         unlink($image_path);
-                        $return['cMensaje'] = "Se elimino la imagen ".$image_path;
+                        $return['cMensaje'] = "Se elimino la imagen ";//.$image_path;
                     }
                 }
             }
@@ -439,6 +440,15 @@ class ProductoController extends Controller{
                     'cantidad_s'      => $request->tall_xs,
                     'cantidad_m'      => $request->talla_md,
                     'cantidad_g'      => $request->talla_lg,
+                    'busto_s'         => $request->busto_xs,
+                    'busto_m'         => $request->busto_m,
+                    'busto_g'         => $request->busto_l,
+                    'largo_s'         => $request->largo_xs,
+                    'largo_m'         => $request->largo_m,
+                    'largo_g'         => $request->largo_l,
+                    'manga_s'         => $request->cadera_xs,
+                    'manga_m'         => $request->cadera_m,
+                    'manga_g'         => $request->cadera_l
                 ]);
                 $result = array(
                                         
@@ -469,19 +479,15 @@ class ProductoController extends Controller{
                 // $producto->url_imagen5 = $request->portadaFile5;
                 // $producto->url_imagen6 = $request->portadaFile6;
 
-                
-                
-                
-                // $producto->busto_s = $request->busto_s;
-                // $producto->busto_m = $request->busto_m;
-                // $producto->busto_g = $request->busto_g;
-                // $producto->largo_s = $request->largo_s;
-                // $producto->largo_m = $request->largo_m;
-                // $producto->largo_g = $request->largo_g;
-                // $producto->manga_s = $request->manga_s;
-                // $producto->manga_m = $request->manga_m;
-                // $producto->manga_g = $request->manga_g;
-                
+                $producto->busto_s = $request->busto_xs;
+                $producto->busto_m = $request->busto_m;
+                $producto->busto_g = $request->busto_l;
+                $producto->largo_s = $request->largo_xs;
+                $producto->largo_m = $request->largo_m;
+                $producto->largo_g = $request->largo_l;
+                $producto->manga_s = $request->cadera_xs;
+                $producto->manga_m = $request->cadera_m;
+                $producto->manga_g = $request->cadera_l;                                
                 $producto->activo = 1;
 
                 $producto->save();

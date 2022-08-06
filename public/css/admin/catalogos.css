@@ -466,3 +466,113 @@ a.delete{
 @keyframes rotate {
 100% {transform: rotate(360deg);}
 } 
+
+
+/*.login_form.modal {
+    border-radius: 0;
+    line-height: 18px;
+    padding: 0;
+    font-family: "Lucida Grande", Verdana, sans-serif;
+}*/
+.modal{
+    width: 100%;
+}
+
+.login_form.modal {
+    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #eee),color-stop(1, #fff));
+}
+
+/*.login_form h3 {
+    margin: 0;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
+    background: -moz-linear-gradient(top, #2e5764, #1e3d47);
+    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #1e3d47),color-stop(1, #2e5764));
+}
+
+.login_form.modal p {
+    padding: 20px 30px;
+    border-bottom: 1px solid #ddd;
+    margin: 0;
+    background: -webkit-gradient(linear,left bottom,left top,color-stop(0, #eee),color-stop(1, #fff));
+    overflow: hidden;
+}*/
+
+.modal a.close-modal {    
+    top: 1px !important;
+    right: 2px !important;
+}
+
+/*.form-horizontal_guia .form-control {
+    padding: 12px 16px 12px 39px;
+    height: 50px;
+    font-size: 14px;
+    color: #2b2a2a;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 15px;
+}*/
+
+
+.form-horizontal_guia .form-control {
+    padding: 0px;
+    /* height: 50px; */
+    font-size: 14px;
+    color: #2b2a2a;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+    /* margin-bottom: 15px; */
+    margin-left: -20px;
+    /* width: 25%; */
+    background: #f9f9f9;
+}
+
+table.table tr td {
+    border-color: #e9e9e9;
+    padding: 12px 15px;
+    vertical-align: middle;
+    width: 20%;
+}
+
+
+.fixed-plugin .fixed-plugin-button i {
+  pointer-events: none;
+}
+
+.fixed-plugin .fixed-plugin-button {
+    background: #fff;
+    border-radius: 50%;
+    bottom: 30px;
+    right: 30px;
+    font-size: 1.25rem;
+    z-index: 990;
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 16%);
+    cursor: pointer;
+}
+
+.ps {
+    overflow: hidden !important;
+    overflow-anchor: none;
+    -ms-overflow-style: none;
+    touch-action: auto;
+    -ms-touch-action: auto;
+}
+
+.position-fixedL {
+    position: fixed !important;
+}
+
+.px-3L {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+}
+
+.py-2L {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
