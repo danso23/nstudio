@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 //     return view('home');
 // });
 Route::get('/', 'ProductoController@home')->name('home');
+
+Route::get('/sugerencia', 'ProductoController@cargaSugerencias')->name('getSugerencia');
+
 /****PRODUCTOS****/
 Route::get('productos', 'ProductoController@index')->name('productos');
 Route::get('productos/detalle/{id}', 'ProductoController@productoDescripcion')->name('producto.detalle');

@@ -553,6 +553,44 @@ class ProductoController extends Controller{
     	return view('home')->with('datos', $datos);
     }
 
+    public function cargaSugerencias(){
+                
+
+        $queryMake = DB::select("select Categorie.FolioProd, Categorie.FolioCat, c.nombre_categoria as NomCat,Categorie.NombreProd, i.path_url as PathImg, Categorie.Contador
+                                from (
+                                    SELECT concen.id_producto as FolioProd, concen.id_categoria as FolioCat, concen.nombre_producto as NombreProd, concen.NOROW as Contador 
+                                    FROM (
+                                        SELECT *, ROW_NUMBER() OVER (PARTITION BY p.id_categoria ORDER BY p.id_categoria DESC) AS NOROW
+                                        FROM productos p            
+                                        where p.id_categoria <> ''
+                                    ) AS concen
+                                    WHERE concen.NOROW <= 5
+                                ) Categorie     
+                                inner  join rel_img_prod rip on rip.id_prod = Categorie.FolioProd 
+                                inner join imagenes i on i.id_imagen = rip.id_img
+                                inner join categorias c on c.id_categoria = Categorie.FolioCat
+                                group by rip.id_prod 
+                                order by Categorie.FolioCat, Categorie.Contador asc");
+
+        if(!empty($queryMake)){
+
+            return response()->json([
+                'cData' => $queryMake,
+                'lError' => false,
+                'cMensaje' => 'Registros actuales'
+            ]);                
+        }
+        else{
+            return response()->json([
+                'cData' => '',
+                'lError' => false,
+                'cMensaje' => 'No existen registros actuales'
+            ]);
+        }
+
+        
+    }
+
     public function productoDescripcion($id){
     	        
         $productos  = Producto::where('id_producto', $id)->get();
