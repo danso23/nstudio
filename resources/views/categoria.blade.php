@@ -12,6 +12,7 @@
                     </button>
                 </div>
             @endif
+
             <div class="row justify-content-center mrl-q">
                 @if(isset($datos['productos']))
                     <div class="col-12 col-sm-12 col-md-10 col-lg-10 p-0">
@@ -30,23 +31,37 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="row pag-pro justify-content-center">
-                                <div class="col-10 col-sm-3 text-center text-sm-left pag-prev">
-                                    <a href="#" class="textos-small">Anterior</a>
-                                </div>
-                                <div class="col-10 col-sm-6 text-center pro-pagination">
-                                    <div class="col-12 text-center">
-                                        <ul class="m-0">
-                                            <li class="textos-cafes">Página</li>
-                                            <li class="textos-cafes"><a href="">1</a></li>
-                                            <li class="textos-cafes">de</li>
-                                            <li class="textos-cafes"><a href="">5</a></li>
-                                        </ul>
+                            <div class="row pag-pro justify-content-center">                                                                
+                                @if ($datos['productos']->lastPage() > 1)                                
+                                    <div class="col-10 col-sm-3 text-center text-sm-left pag-prev">
+                                        @if(($datos['productos']->currentPage() != 1))
+                                            <a href="{{ $datos['productos']->url($datos['productos']->currentPage()-1) }}" class="textos-small">Anterior</a>
+                                        @endif
                                     </div>
-                                </div>
-                                <div class="col-10 col-sm-3 text-center text-sm-right pag-next">
-                                    <a href="#" class="textos-small">Siguiente</a>
-                                </div>
+                                    
+                                    <div class="col-10 col-sm-6 text-center pro-pagination">
+                                        <div class="col-12 text-center">
+                                            <ul class="m-0">
+
+
+                                                <li class="textos-cafes">Página</li>
+                                                <li class="{{ ($datos['productos']->currentPage()) ? ' active' : '' }} textos-cafes">
+                                                    <a href="{{  $datos['productos']->url($datos['productos']->currentPage() )}}">{{ $datos['productos']->currentPage() }}</a>
+                                                </li>
+                                                <li class="textos-cafes">de</li>
+                                                <li class="{{ ($datos['productos']->lastPage()) ? ' active' : '' }} textos-cafes">
+                                                    <a href="{{ $datos['productos']->url($datos['productos']->lastPage()) }}">{{ $datos['productos']->lastPage() }}</a>
+                                                </li>                                            
+                                            </ul>
+                                        </div>
+                                    </div>                                    
+                                    
+                                    <div class="col-10 col-sm-3 text-center text-sm-right pag-next" >
+                                        @if($datos['productos']->currentPage() != $datos['productos']->lastPage())
+                                            <a class="textos-small" href="{{ $datos['productos']->url($datos['productos']->currentPage()+1) }}" >Siguiente</a>
+                                        @endif
+                                    </div>                                                                    
+                                @endif                                                                                   
                             </div>
                         </div>
                     </div>

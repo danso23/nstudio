@@ -632,13 +632,7 @@ class ProductoController extends Controller{
         return view('producto_descripcion')->with('datos', $datos);
     }
 
-    public function productoXCategoria($id){
-        
-        /*
-            productos.busto_s, productos.busto_m, 
-                        productos.busto_g, productos.largo_s, productos.largo_m, 
-                        productos.largo_g, productos.manga_s, productos.manga_m, productos.manga_g
-        */
+    public function productoXCategoria($id){        
 
         $productos = Producto::join('categorias', 'productos.id_categoria', 'categorias.id_categoria')
                      ->rightJoin('rel_img_prod','rel_img_prod.id_prod','productos.id_producto')
@@ -650,8 +644,8 @@ class ProductoController extends Controller{
                         productos.desc_producto, productos.url_imagen, 
                         productos.precio, productos.cantidad_s, productos.cantidad_m, 
                         productos.cantidad_g,imagenes.path_url as path_cover')
-                     ->get();//->toArray();
-        // dd($productos);
+                     ->paginate(6);
+        
         $categorias = Categoria::where('activo', '1')->selectRaw('id_categoria, nombre_categoria')->get();
         
         $utils = new Utils();
