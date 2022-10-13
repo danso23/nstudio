@@ -1,3 +1,5 @@
+var protocol = window.location.protocol;
+var _obj = [];
 (function($) {
 $(document).ready( function() {
     var $window = $(window);
@@ -46,7 +48,8 @@ $(document).ready( function() {
           return false;
         }
     });
-    getAllProducts();
+    //getAllProducts();
+    cargarCategoriasSugerencias();
     new WOW().init();
     site_init();
 });
@@ -59,7 +62,12 @@ window.setTimeout(function() {
 }, 5000);
 
 function getAllProducts() {
-    fetch('https://nstudioveinte.mx/json/productosall',
+    let cUrl;
+    if(window.location.hostname == 'localhost')
+        cUrl = protocol+'//localhost/nstudio/json/productosall';
+    else
+        cUrl = protocol + '//nstudioveinte.mx/json/productosall'
+    fetch(cUrl,
         {method: 'GET'}
     )
     .then(res =>
@@ -72,14 +80,69 @@ function getAllProducts() {
 
 }
 
+function cargarCategoriasSugerencias(){
+    let cUrl;
+    if(window.location.hostname == 'localhost')
+        cUrl = protocol+'//localhost/nstudio/sugerencia';
+    else
+        cUrl = protocol + '//nstudioveinte.mx/sugerencia';
+    const fetchpromise = fetch(cUrl,
+        {method: 'GET'})
+    .then(
+        res => res.json() 
+        .then(r => {
+            if(!r.lError){
+                let html ="";
+                let cont = 0;
+                r.cData.forEach(el => {
+                    _obj[cont] = el;
+                    cont++;
+                    /*html+='<div class="col-10 col-sm-9 col-md-2 col-lg-2 producto">';
+                    html+='<img src="'+url_global+'/public/'+el.PathImg+'" alt="" class="2-100" width="100%"></img>';
+                    html+='<form action="'+url_global+'/cart-add" method="post">';
+                    html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
+                    html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
+                    html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
+                    html+='</form>';
+                    html+='</div>';*/
+                });
+                console.log(_obj);
+                //$("#div_Productos").html(html);
+            }
+        })
+    );
+    
+    
+    //html+='</div>';
+}
+
 function cargarCategoria(id) {
     var html="";
-    $.ajax({
+    var item = _obj.filter(x => id == x.FolioCat);
+    item.forEach(element => {
+        html+='<div class="col-10 col-sm-9 col-md-3 col-lg-3 producto text-center">';
+        html+='<div class="card tex" style="display: block;">';
+        html+='<img src="'+url_global+'/public'+element.PathImg+'" alt="" class="2-100 resize mt-3" width="100%"></img>';
+        html+='<div class="card-body">';
+        html+='<h5 class="card-title">'+element.NombreProd + '</h5>';
+        html+='<form action="'+url_global+'/cart-add" method="post">';
+        html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
+        html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
+        html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
+        html+='</form>';
+        html+='</div>'; //Fin card-body
+        html+='</div>'; //Fin card
+        
+        html+='</div>';
+    });
+    $("#div_Productos").html(html);
+
+    /*$.ajax({
 		type: "GET",
     	dataType: "json",
     	url: url_global+"/jsoncategoria/"+id,		
 		success: function(data){
-            data.forEach(element => {                            
+            data.forEach(element => {
                 html+='<div class="col-10 col-sm-9 col-md-2 col-lg-2 producto">';
                 html+='<img src="'+url_global+'/public/img/productos/'+element.url_imagen+'" alt="" class="2-100" width="100%"></img>';
                 html+='<form action="'+url_global+'/cart-add" method="post">';
@@ -111,5 +174,5 @@ function cargarCategoria(id) {
 			console.log(msg);
 			alert("Ocurrio un error[1]")
 		}
-	});
+	});*/
 }
