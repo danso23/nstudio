@@ -119,43 +119,40 @@ function cargarCategoriasSugerencias(){
 function cargarCategoria(id) {
     var html="";
     var item = _obj.filter(x => id == x.FolioCat);
-    item.forEach(element => {
-        html+='<div class="col-10 col-sm-9 col-md-3 col-lg-3 producto text-center">';
-        html+='<div class="card tex" style="display: block;">';
-        html+='<img src="'+url_global+'/public'+element.PathImg+'" alt="" class="2-100 resize mt-3" width="100%"></img>';
-        html+='<div class="card-body">';
-        html+='<h5 class="card-title">'+element.NombreProd + '</h5>';
-        html+='<form action="'+url_global+'/cart-add" method="post">';
-        html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
-        html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
-        html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
-        html+='</form>';
-        html+='</div>'; //Fin card-body
-        html+='</div>'; //Fin card
-        
-        html+='</div>';
-    });
+    var lMuchosCaracteres = false;
+    if(item.length > 0){
+        item.forEach(element => {
+            if(element.NombreProd.length > 10){
+                lMuchosCaracteres = true;
+            }
+            html+='<div class="col-10 col-sm-9 col-md-3 col-lg-3 producto text-center">';
+            html+='<div class="card tex" style="display: block;">';
+            html+='<img src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%"></img>';
+            html+='<div class="card-body">';
+            html+='<h5 class="card-title">'+element.NombreProd + '</h5>';
+            html+='<a href="'+url_global+'/productos/detalle/'+element.FolioProd+'">ver producto</a>'
+            html+='<form action="'+url_global+'/cart-add" method="post">';
+            html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
+            html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
+            html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
+            html+='</form>';
+            html+='</div>'; //Fin card-body
+            html+='</div>'; //Fin card
+            
+            html+='</div>';
+        });
+    }
+    else{
+        html+='<div style="display:block" class="alert alert-warning">Esta categoría por el momento no contiene productos</div>';
+    }
     $("#div_Productos").html(html);
+    
+}
 
-    /*$.ajax({
-		type: "GET",
-    	dataType: "json",
-    	url: url_global+"/jsoncategoria/"+id,		
-		success: function(data){
-            data.forEach(element => {
-                html+='<div class="col-10 col-sm-9 col-md-2 col-lg-2 producto">';
-                html+='<img src="'+url_global+'/public/img/productos/'+element.url_imagen+'" alt="" class="2-100" width="100%"></img>';
-                html+='<form action="'+url_global+'/cart-add" method="post">';
-                html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
-                html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
-                html+='<input type="hidden" name="id_producto" value="'+element.id_producto+'">';           
-                html+='</form>';
-                
-                html+='</div>';
-            });
-            $("#div_Productos").html(html);
-		},
-		error: function (jqXHR, exception){
+
+
+/* ERORRS AJAX
+error: function (jqXHR, exception){
 			var msg = '';
 			if (jqXHR.status === 0)
 				msg = 'Not connect.\n Verify Network.';
@@ -174,5 +171,4 @@ function cargarCategoria(id) {
 			console.log(msg);
 			alert("Ocurrio un error[1]")
 		}
-	});*/
-}
+*/
