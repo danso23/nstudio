@@ -60,8 +60,10 @@
                     </button>
                 </div>
             @endif
-            <div class="row justify-content-center" id="div_Productos">
+            <div class="container contaner-productos">
+                <div class="row justify-content-center" id="div_Productos">
                 
+                </div>
             </div>
         </div>
     </section>

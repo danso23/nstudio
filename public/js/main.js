@@ -119,23 +119,18 @@ function cargarCategoriasSugerencias(){
 function cargarCategoria(id) {
     var html="";
     var item = _obj.filter(x => id == x.FolioCat);
-    var lMuchosCaracteres = false;
+    var pixels = 0;
+    var mayorPixels = 0;
     if(item.length > 0){
         item.forEach(element => {
-            if(element.NombreProd.length > 10){
-                lMuchosCaracteres = true;
-            }
-            html+='<div class="col-10 col-sm-9 col-md-3 col-lg-3 producto text-center">';
-            html+='<div class="card tex" style="display: block;">';
+            html+='<div class="col-10 col-sm-9 col-md-4 col-lg-4 producto text-center">';
+            html+='<div class="card card-product card-resize-h" style="display: block;">';
             html+='<img src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%"></img>';
             html+='<div class="card-body">';
-            html+='<h5 class="card-title">'+element.NombreProd + '</h5>';
-            html+='<a href="'+url_global+'/productos/detalle/'+element.FolioProd+'">ver producto</a>'
-            html+='<form action="'+url_global+'/cart-add" method="post">';
-            html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
-            html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
+            html+='<h5 class="card-title txt-cafe">'+element.NombreProd + '</h5>';
+            html+='<p class="textos-small-pink">$0.00</p>';
+            html+='<a type="button" class="btn btn-pink btn-add-sp" href="'+url_global+'/productos/detalle/'+element.FolioProd+'">Ver producto</a>';
             html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
-            html+='</form>';
             html+='</div>'; //Fin card-body
             html+='</div>'; //Fin card
             
@@ -146,7 +141,17 @@ function cargarCategoria(id) {
         html+='<div style="display:block" class="alert alert-warning">Esta categoría por el momento no contiene productos</div>';
     }
     $("#div_Productos").html(html);
-    
+    if($(".producto").length > 0){
+        $(".card-product").each(function(index, val) {
+            pixels = $(this).innerHeight();
+            if(pixels > mayorPixels ){
+                mayorPixels = pixels;
+            }
+        });
+        if(mayorPixels > 0){
+            $(".card-resize-h").css("height", mayorPixels);
+        }
+    }
 }
 
 

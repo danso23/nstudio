@@ -1034,7 +1034,7 @@ a.btn-more:after {
 }
 
 .description .img-desc img{
-  width: 50%;
+  /* width: 50%; */
 }
 
 .description .option-product h4{
@@ -1548,9 +1548,14 @@ a{
 }
 
 .resize{
-  width: 18vh;
-  height: 22vh;
+  width: 22vh;
+  height: 28vh;
 }
+
+.card-resize-h{
+  
+}
+
 .resize-characters{
   height: 45vh !important;
 }
