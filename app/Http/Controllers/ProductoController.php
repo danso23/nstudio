@@ -564,7 +564,7 @@ class ProductoController extends Controller{
                                         FROM productos p            
                                         where p.id_categoria <> ''
                                     ) AS concen
-                                    WHERE concen.NOROW <= 5
+                                    WHERE concen.NOROW <= 7
                                 ) Categorie     
                                 inner  join rel_img_prod rip on rip.id_prod = Categorie.FolioProd 
                                 inner join imagenes i on i.id_imagen = rip.id_img

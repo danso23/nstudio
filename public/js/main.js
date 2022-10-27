@@ -1,9 +1,9 @@
 var protocol = window.location.protocol;
 var _obj = [];
 (function($) {
-$(document).ready( function() {
-    var $window = $(window);
+$(document).ready( function() {  
 
+    var $window = $(window);
     var site_init = function() {
         $('.toggle-menu').on( 'click', function(e) {
             e.preventDefault();
@@ -97,17 +97,9 @@ function cargarCategoriasSugerencias(){
                 r.cData.forEach(el => {
                     _obj[cont] = el;
                     cont++;
-                    /*html+='<div class="col-10 col-sm-9 col-md-2 col-lg-2 producto">';
-                    html+='<img src="'+url_global+'/public/'+el.PathImg+'" alt="" class="2-100" width="100%"></img>';
-                    html+='<form action="'+url_global+'/cart-add" method="post">';
-                    html+='<input type="hidden" name="_token" value="'+document.querySelector('meta[name="_token"]').getAttribute('content')+'">';
-                    html+='<button type="submit" class="btn btn-pink btn-add-sp">Añadir al carrito</button>';
-                    html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
-                    html+='</form>';
-                    html+='</div>';*/
                 });
                 console.log(_obj);
-                //$("#div_Productos").html(html);
+            
             }
         })
     );
@@ -122,20 +114,73 @@ function cargarCategoria(id) {
     var pixels = 0;
     var mayorPixels = 0;
     if(item.length > 0){
+        html+='<div class="row">';
+        html+=' <div class="col-6"></div>';
+        html+=' <div class="col-6 text-right">';
+        html+='     <a class="btn btn-pink mb-3 mr-1" href="#carouselExampleIndicators2" role="button" data-slide="prev">';
+        html+='         <i class="fa fa-arrow-left"></i>';
+        html+='     </a>';
+        html+='     <a class="btn btn-pink mb-3 " href="#carouselExampleIndicators2" role="button" data-slide="next">';
+        html+='         <i class="fa fa-arrow-right"></i>';
+        html+='     </a>';
+        html+=' </div>';
+        html+=' <div class="col-12 producto">';
+        html+=' <div id="carouselExampleIndicators2" class="carousel slide" data-ride="carousel">';
+        
+        html+='     <div class="carousel-inner">';
+        var cont_card = 1;
         item.forEach(element => {
-            html+='<div class="col-10 col-sm-9 col-md-4 col-lg-4 producto text-center">';
-            html+='<div class="card card-product card-resize-h" style="display: block;">';
-            html+='<img src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%"></img>';
-            html+='<div class="card-body">';
-            html+='<h5 class="card-title txt-cafe">'+element.NombreProd + '</h5>';
-            html+='<p class="textos-small-pink">$0.00</p>';
-            html+='<a type="button" class="btn btn-pink btn-add-sp" href="'+url_global+'/productos/detalle/'+element.FolioProd+'">Ver producto</a>';
-            html+='<input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
-            html+='</div>'; //Fin card-body
-            html+='</div>'; //Fin card
-            
-            html+='</div>';
+            if(cont_card <= 3){
+                if(cont_card == 1){
+                    html+=' <div class="carousel-item active">';
+                    html+='     <div class="row">';
+                }
+                    html+='         <div class="col-md-4 mb-3">';
+                    html+='             <div class="card card-product card-resize-h">';
+                    html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%">';
+                    html+='                 <div class="card-body">';
+                    html+='                     <h4 class="card-title txt-cafe">'+element.NombreProd +'</h4>';
+                    html+='                     <p class="textos-small-pink">$0.00</p>';
+                    html+='                     <a type="button" class="btn btn-pink btn-add-sp" href="'+url_global+'/productos/detalle/'+element.FolioProd+'">Ver producto</a>';
+                    html+='                     <input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
+                    html+='                  </div>';
+                    html+='             </div>';
+                    html+='          </div>';
+                if(cont_card == 3){
+                    html+='     </div>';
+                    html+=' </div>';
+                    // cont_card=0;
+                }
+            }
+            if(cont_card > 3){
+                if(cont_card == 4){
+                    html+=' <div class="carousel-item">';
+                    html+='     <div class="row">';
+                }
+                
+                html+='         <div class="col-md-4 mb-3">';
+                html+='             <div class="card card-product card-resize-h">';
+                html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%">';
+                html+='                 <div class="card-body">';
+                html+='                     <h4 class="card-title txt-cafe">'+element.NombreProd +'</h4>';
+                html+='                     <p class="textos-small-pink">$0.00</p>';
+                html+='                     <a type="button" class="btn btn-pink btn-add-sp" href="'+url_global+'/productos/detalle/'+element.FolioProd+'">Ver producto</a>';
+                html+='                     <input type="hidden" name="id_producto" value="'+element.FolioProd+'">';
+                html+='                  </div>';
+                html+='             </div>';
+                html+='          </div>';
+                if((cont_card - 1) == item.length){
+                    html+='     </div>';
+                    html+=' </div>';
+                }
+            }
+            cont_card++;
         });
+        
+        html+='</div>';
+        html+=' </div>';
+        html+=' </div>';
+        html+='</div>';//row
     }
     else{
         html+='<div style="display:block" class="alert alert-warning">Esta categoría por el momento no contiene productos</div>';

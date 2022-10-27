@@ -1548,8 +1548,8 @@ a{
 }
 
 .resize{
-  width: 22vh;
-  height: 28vh;
+  width: 24vh;
+  height: 32vh;
 }
 
 .card-resize-h{
@@ -1559,3 +1559,6 @@ a{
 .resize-characters{
   height: 45vh !important;
 }
+
+
+
