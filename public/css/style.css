@@ -1548,7 +1548,7 @@ a{
 }
 
 .resize{
-  width: 24vh;
+  width: 92% !important;
   height: 32vh;
 }
 

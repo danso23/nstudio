@@ -135,9 +135,9 @@ function cargarCategoria(id) {
                     html+=' <div class="carousel-item active">';
                     html+='     <div class="row">';
                 }
-                    html+='         <div class="col-md-4 mb-3">';
+                    html+='         <div class="col-md-4 mb-2">';
                     html+='             <div class="card card-product card-resize-h">';
-                    html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%">';
+                    html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3 pl-3" width="100%">';
                     html+='                 <div class="card-body">';
                     html+='                     <h4 class="card-title txt-cafe">'+element.NombreProd +'</h4>';
                     html+='                     <p class="textos-small-pink">$0.00</p>';
@@ -158,9 +158,9 @@ function cargarCategoria(id) {
                     html+='     <div class="row">';
                 }
                 
-                html+='         <div class="col-md-4 mb-3">';
+                html+='         <div class="col-md-4 mb-2">';
                 html+='             <div class="card card-product card-resize-h">';
-                html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3" width="100%">';
+                html+='                 <img alt="No disponible" src="'+url_global+'/public'+element.PathImg+'" alt="" class="isImg 2-100 resize mt-3 pl-3" width="100%">';
                 html+='                 <div class="card-body">';
                 html+='                     <h4 class="card-title txt-cafe">'+element.NombreProd +'</h4>';
                 html+='                     <p class="textos-small-pink">$0.00</p>';
